@@ -1,127 +1,127 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "../firebase";
 
 const AuthPage = ({ onAuthSuccess }) => {
   const navigate = useNavigate();
-  const [mode, setMode] = useState('login');
-  const [form, setForm] = useState({ email: '', password: '', display_name: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    if (mode === 'signup') {
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
-        const user = userCredential.user;
-
-        // Firebase 프로필 이름 설정
-        await updateProfile(user, {
-          displayName: form.display_name
-        });
-
-        // Firestore에 사용자 정보 저장
-        await setDoc(doc(db, "users", user.uid), {
-          email: form.email,
-          displayName: form.display_name,
-          settings: {
-            language: "ko",
-            dark_mode: false
-          }
-        });
-
-        alert("회원가입 성공!");
-        onAuthSuccess(user);
-        navigate('/');
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    } else {
-      // 로그인
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, form.email, form.password);
-        alert("로그인 성공!");
-        onAuthSuccess(userCredential.user);
-        navigate('/');
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, form.email, form.password);
+      const idToken = await userCredential.user.getIdToken(); // ✅ 토큰 가져오기
+      onAuthSuccess(idToken); // ✅ idToken만 전달
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen font-sans bg-gradient-to-br from-purple-50 to-white"
-    >
-      <div className="max-w-md mx-auto p-6 bg-white rounded-md shadow">
-        <h1 className="text-2xl font-bold mb-4">{mode === 'login' ? '로그인' : '회원가입'}</h1>
-        {error && <div className="mb-4 text-red-500">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block mb-1">이메일</label>
-            <input 
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full border rounded-md p-2"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">비밀번호</label>
-            <input 
-              type="password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full border rounded-md p-2"
-              required
-            />
-          </div>
-          {mode === 'signup' && (
-            <div className="mb-4">
-              <label className="block mb-1">사용자 이름</label>
-              <input 
-                type="text"
-                value={form.display_name}
-                onChange={(e) => setForm({ ...form, display_name: e.target.value })}
-                className="w-full border rounded-md p-2"
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-md mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-extrabold text-purple-600">OPEN BG</h1>
+          <p className="mt-2 text-gray-600">계정에 로그인하세요</p>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.4 }}
+          className="bg-white py-8 px-6 shadow-sm rounded-2xl"
+        >
+          {error && (
+            <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-xl">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                placeholder="your@email.com"
                 required
               />
             </div>
-          )}
-          <button type="submit" className="w-full bg-purple-500 text-white px-4 py-2 rounded-md">
-            {loading ? '로딩중...' : (mode === 'login' ? '로그인' : '회원가입')}
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          {mode === 'login' ? (
-            <p>
-              계정이 없으신가요?{' '}
-              <button onClick={() => setMode('signup')} className="text-purple-500">회원가입</button>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                placeholder="••••••••"
+                required
+              />
+              <div className="flex justify-end mt-1">
+                <button type="button" className="text-xs text-purple-600 hover:text-purple-700">
+                  비밀번호를 잊으셨나요?
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    로그인 중...
+                  </span>
+                ) : (
+                  '로그인하기'
+                )}
+              </button>
+            </div>
+          </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">또는</span>
+            </div>
+          </div>
+
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600">
+              아직 계정이 없으신가요?{' '}
+              <button onClick={() => navigate('/register')} className="text-purple-600 font-medium hover:text-purple-700">
+                회원가입하기
+              </button>
             </p>
-          ) : (
-            <p>
-              이미 계정이 있으신가요?{' '}
-              <button onClick={() => setMode('login')} className="text-purple-500">로그인</button>
-            </p>
-          )}
-        </div>
+          </div>
+        </motion.div>
+
+        <p className="text-center text-xs text-gray-500 mt-8">
+          로그인하면 서비스 이용약관 및 개인정보처리방침에 동의하게 됩니다.
+        </p>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

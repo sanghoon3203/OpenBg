@@ -6,23 +6,64 @@ import BadgeCard from './BadgeCard';
 const PortfolioContent = () => {
   const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [walletExists, setWalletExists] = useState(false);
   const [showAddBadgeForm, setShowAddBadgeForm] = useState(false);
   const [newBadgeUrl, setNewBadgeUrl] = useState('');
-
   const user = auth.currentUser;
 
+  // 뱃지 데이터 불러오기
   const fetchBadges = async () => {
     if (!user) return;
     const badgeRef = collection(db, 'users', user.uid, 'badges');
     const snapshot = await getDocs(badgeRef);
-    const fetched = snapshot.docs.map(doc => ({ badgeId: doc.id, ...doc.data() }));
-    setBadges(fetched);
+
+    if (snapshot.empty) {
+      setWalletExists(false);
+    } else {
+      setWalletExists(true);
+      const fetched = snapshot.docs.map(doc => ({ badgeId: doc.id, ...doc.data() }));
+      setBadges(fetched);
+    }
+
     setLoading(false);
   };
 
+  // 최초 실행
   useEffect(() => {
     fetchBadges();
   }, [user]);
+
+  // 지갑 생성 (더미 뱃지 넣기)
+  const createWallet = async () => {
+    if (!user) return;
+
+    const dummyBadge = {
+      badge_url: '',
+      id: `dummy-${Date.now()}`,
+      type: 'Assertion',
+      name: '지갑이 생성되었습니다.',
+      description: 'OpenBadge 시스템에 의해 지갑이 생성되었습니다.',
+      issuer: 'OpenBadge 시스템',
+      issuedOn: new Date().toISOString().split('T')[0],
+      addedAt: new Date().toISOString(),
+      image: '', // 기본 이미지 없음
+      skills: [],
+      alignment: [],
+      recipient: {
+        type: 'email',
+        identity: user?.email || 'unknown@example.com',
+        hashed: false
+      },
+      verification: {
+        type: 'HostedBadge'
+      }
+    };
+    
+
+    const badgeRef = collection(db, 'users', user.uid, 'badges');
+    await addDoc(badgeRef, dummyBadge);
+    fetchBadges(); // 지갑 생성 후 다시 fetch
+  };
 
   const handleDeleteBadge = async (badgeId) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
@@ -37,21 +78,29 @@ const PortfolioContent = () => {
 
   const handleAddBadgeSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const res = await fetch(newBadgeUrl);
       if (!res.ok) throw new Error('URL 접근 실패');
       const badgeJson = await res.json();
-
+  
+      // Open Badges v2.0 기반 데이터 추출
       const badgeData = {
         badge_url: newBadgeUrl,
+        id: badgeJson.id || newBadgeUrl,
+        type: badgeJson.type || 'Assertion',
         name: badgeJson.badge?.name || '이름 없음',
+        description: badgeJson.badge?.description || '',
         issuer: badgeJson.badge?.issuer?.name || '기관 미상',
-        skills: badgeJson.badge?.skills || [],
         issuedOn: badgeJson.issuedOn?.split('T')[0] || '',
-        addedAt: new Date().toISOString()
+        image: badgeJson.image || '',
+        skills: badgeJson.badge?.skills || [],
+        alignment: badgeJson.badge?.alignment || [],
+        recipient: badgeJson.recipient || {},
+        verification: badgeJson.verification || {},
+        addedAt: new Date().toISOString(),
       };
-
+  
       const badgeRef = collection(db, 'users', user.uid, 'badges');
       const docRef = await addDoc(badgeRef, badgeData);
       setBadges([...badges, { ...badgeData, badgeId: docRef.id }]);
@@ -62,12 +111,28 @@ const PortfolioContent = () => {
     }
   };
 
-  if (loading) return (
-    <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
-      <p className="ml-3 text-gray-600">로딩중...</p>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+        <p className="ml-3 text-gray-600">로딩중...</p>
+      </div>
+    );
+  }
+
+  if (!walletExists) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">아직 배지 지갑이 없습니다.</h2>
+        <button
+          onClick={createWallet}
+          className="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2 rounded-lg shadow"
+        >
+          배지 지갑 생성하기
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 p-6 rounded-xl">
@@ -84,13 +149,13 @@ const PortfolioContent = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {badges.map(badge => (
           <BadgeCard
-          key={badge.badgeId}
-          title={badge.name}
-          issuer={badge.issuer}
-          date={badge.issuedOn}
-          skills={badge.skills}
-          onDelete={() => handleDeleteBadge(badge.badgeId)}
-        />
+            key={badge.badgeId}
+            title={badge.name}
+            issuer={badge.issuer}
+            date={badge.issuedOn}
+            skills={badge.skills}
+            onDelete={() => handleDeleteBadge(badge.badgeId)}
+          />
         ))}
 
         <BadgeCard 

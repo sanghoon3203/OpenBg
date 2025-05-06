@@ -3,13 +3,19 @@ import { Search, ChevronDown, ChevronUp, Award, ArrowRight, MessageCircle, Users
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-const QnAPage = () => {
+const QnAPage = ({ idToken, user }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedQuestions, setExpandedQuestions] = useState({});
-const navigate = useNavigate();
- 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!idToken) {
+      navigate('/login');
+    }
+  }, [idToken, navigate]);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -97,17 +103,7 @@ const navigate = useNavigate();
     }
   ];
 
-  // 검색 및 필터링 로직
-  const filteredFaqs = faqs
-    .filter(faq => 
-      activeCategory === 'all' || faq.category === activeCategory
-    )
-    .filter(faq => 
-      searchQuery === '' || 
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
+  
   // 자주 문의하는 질문들
   const popularQuestions = [
     'OpenBadge는 무엇인가요?',
@@ -115,6 +111,25 @@ const navigate = useNavigate();
     '발행자가 되려면 어떻게 해야 하나요?',
     '배지를 소셜 미디어에 공유할 수 있나요?'
   ];
+  // 로그아웃 핸들러
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem('idToken');
+      setIdToken(null);
+      navigate('/');
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
+  };
+
+  const filteredFaqs = faqs
+    .filter(faq => activeCategory === 'all' || faq.category === activeCategory)
+    .filter(faq =>
+      searchQuery === '' ||
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   return (
     <motion.div
@@ -125,37 +140,59 @@ const navigate = useNavigate();
       className="min-h-screen font-sans bg-gradient-to-br from-purple-50 to-white"
     >
       {/* 헤더 */}
-     <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
-               <div className="container mx-auto px-6 flex justify-between items-center">
-                 <div className="flex items-center">
-                   <div className="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center">
-                     <Award className="text-white" />
-                   </div>
-                   <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">OpenBadge</span>
-                 </div>
-                 <nav className="hidden md:flex space-x-8">
-                 <NavLink to="/"className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>홈
-                 </NavLink>
-                 <NavLink to="/dashboard"className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>마이프로필 
-                 </NavLink>
-                 <NavLink to="/dashboard"className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>나의 뱃지지갑
-                 </NavLink>
-                 <NavLink to="/dashboard"className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>커뮤니티</NavLink>
-                 <NavLink to="/dashboard"className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>AI추천강좌
-                 </NavLink>
-                 <NavLink to="/qna"className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>도움말
-                 </NavLink>
-                 </nav>
-     
-                 <div className="flex items-center space-x-4">
-                   <button onClick={() => navigate('/login')}
-                     className="bg-transparent border border-purple-600 text-purple-600 px-4 py-2 rounded-md hover:bg-purple-50 transition-colors">로그인
-                   </button>
-                   <button onClick={() => navigate('/signup')}
-                     className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">회원가입</button>
-                 </div>
-               </div>
-             </header>
+      <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
+        <div className="container mx-auto px-6 flex justify-between items-center">
+        <NavLink to="/" className="flex items-center">
+          <div className="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center">
+            <Award className="text-white" />
+          </div>
+          <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
+            OpenBadge
+          </span>
+        </NavLink>
+
+          <nav className="hidden md:flex space-x-8">
+            <NavLink to="/" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>홈</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>마이프로필</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>나의 뱃지지갑</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>커뮤니티</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>AI추천강좌</NavLink>
+            <NavLink to="/qna" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>도움말</NavLink>
+          </nav>
+
+          <div className="flex items-center space-x-4">
+            {idToken ? (
+              <>
+                  <span className="text-purple-600 font-semibold">
+                    {user?.displayName || user?.email}님 안녕하세요!
+                  </span>           
+                  <button
+                  onClick={handleLogout}
+                  className="border border-purple-600 text-purple-600 px-4 py-2 rounded-md hover:bg-purple-50 transition-colors"
+                >
+                  로그아웃
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="border border-purple-600 text-purple-600 px-4 py-2 rounded-md hover:bg-purple-50 transition-colors"
+                >
+                  로그인
+                </button>
+                <button
+                  onClick={() => navigate('/register')}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+                >
+                  회원가입
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </header> 
+
 
       {/* 메인 콘텐츠 */}
       <main className="pt-32 pb-20">

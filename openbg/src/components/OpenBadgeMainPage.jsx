@@ -1,216 +1,172 @@
-  import React, { useState, useEffect } from 'react';
-  import { motion } from 'framer-motion';
-  import { ArrowRight, Award, Book, Gift, Users, Globe, Search } from 'lucide-react';
-  import { NavLink, useNavigate } from 'react-router-dom';
-  // 🔥 Firebase import 추가 🔥
-  import { auth } from '../firebase';
-  import { onAuthStateChanged, signOut } from 'firebase/auth';
-  import LogoSlider from './LogoSlider';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Award, Book, Gift, Users, Globe, Search } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
+import BadgeSlider from './BadgeSlider';
 
-  const OpenBadgeMainPage = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [activeCategory, setActiveCategory] = useState('all');
-    const [user, setUser] = useState(null);
-    const navigate = useNavigate();
+const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const navigate = useNavigate();
 
-    //스크롤 상태 확인 코드
-    useEffect(() => {
-      const handleScroll = () => {
-        setIsScrolled(window.scrollY > 50);
-      };
-      window.addEventListener('scroll', handleScroll);
-      return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+  // 스크롤 상태 확인
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    // 로그인 상태 확인 추가 코드
-    useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-     });
-    return () => unsubscribe();
-}, []);
+  // 로그아웃 핸들러
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem('idToken');
+      setIdToken(null);
+      navigate('/');
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
+  };
 
-   // 파트너 로고 데이터
-   const partnerLogos = [
-    { name: 'Findable', image: '/api/placeholder/150/50' },
-    { name: 'Freepik', image: '/api/placeholder/150/50' },
-    { name: 'Black Forest Labs', image: '/api/placeholder/150/50' },
-    { name: 'IX', image: '/api/placeholder/150/50' },
-    { name: 'Manifest AI', image: '/api/placeholder/150/50' },
-    { name: 'NEX', image: '/api/placeholder/150/50' },
-    { name: 'SONY', image: '/api/placeholder/150/50' },
+
+  const categories = [
+    { id: 'all', name: '전체' },
+    { id: 'tech', name: '기술' },
+    { id: 'design', name: '디자인' },
+    { id: 'language', name: '언어' },
+    { id: 'business', name: '비즈니스' },
+    { id: 'hobby', name: '취미' }
   ];
-    const categories = [
-      { id: 'all', name: '전체' },
-      { id: 'tech', name: '기술' },
-      { id: 'design', name: '디자인' },
-      { id: 'language', name: '언어' },
-      { id: 'business', name: '비즈니스' },
-      { id: 'hobby', name: '취미' }
-    ];
 
-    const badges = [
-      {
-        id: 1,
-        title: '웹 개발 기초',
-        category: 'tech',
-        image: '/api/placeholder/350/200',
-        issuer: '테크 아카데미',
-        difficulty: '초급',
-        students: 1204
-      },
-      {
-        id: 2,
-        title: 'UI/UX 디자인 마스터',
-        category: 'design',
-        image: '/api/placeholder/350/200',
-        issuer: '디자인 스쿨',
-        difficulty: '중급',
-        students: 867
-      },
-      {
-        id: 3,
-        title: '비즈니스 영어',
-        category: 'language',
-        image: '/api/placeholder/350/200',
-        issuer: '글로벌 에듀',
-        difficulty: '중급',
-        students: 2431
-      },
-      {
-        id: 4,
-        title: '프로젝트 관리',
-        category: 'business',
-        image: '/api/placeholder/350/200',
-        issuer: '비즈니스 허브',
-        difficulty: '고급',
-        students: 1056
-      },
-      {
-        id: 5,
-        title: '데이터 사이언스',
-        category: 'tech',
-        image: '/api/placeholder/350/200',
-        issuer: '테크 아카데미',
-        difficulty: '고급',
-        students: 783
-      },
-      {
-        id: 6,
-        title: '디지털 일러스트레이션',
-        category: 'design',
-        image: '/api/placeholder/350/200',
-        issuer: '크리에이티브 스튜디오',
-        difficulty: '중급',
-        students: 1192
-      },
-      {
-        id: 7,
-        title: '요리 마스터',
-        category: 'hobby',
-        image: '/api/placeholder/350/200',
-        issuer: '쿠킹 클래스',
-        difficulty: '초급',
-        students: 3405
-      },
-      {
-        id: 8,
-        title: '블록체인 개발',
-        category: 'tech',
-        image: '/api/placeholder/350/200',
-        issuer: '크립토 아카데미',
-        difficulty: '고급',
-        students: 542
-      }
-    ];
+  const badges = [
+    {
+      id: 1,
+      title: '웹 개발 기초',
+      category: 'tech',
+      image: 'src/assets/web.svg',
+      issuer: '테크 아카데미',
+      difficulty: '초급',
+      students: 1204
+    },
+    {
+      id: 2,
+      title: 'UI/UX 디자인 마스터',
+      category: 'design',
+      image: 'src/assets/ui.svg',
+      issuer: '디자인 스쿨',
+      difficulty: '중급',
+      students: 867
+    },
+    {
+      id: 3,
+      title: '비즈니스 영어',
+      category: 'language',
+      image: 'src/assets/eng.svg',
+      issuer: '글로벌 에듀',
+      difficulty: '중급',
+      students: 2431
+    },
+    {
+      id: 4,
+      title: '프로젝트 관리',
+      category: 'business',
+      image: 'src/assets/product.svg',
+      issuer: '비즈니스 허브',
+      difficulty: '고급',
+      students: 1056
+    },
+  ];
 
-    const filteredBadges = activeCategory === 'all' 
-      ? badges 
-      : badges.filter(badge => badge.category === activeCategory);
+  const filteredBadges = activeCategory === 'all' 
+    ? badges 
+    : badges.filter(badge => badge.category === activeCategory);
 
-    const features = [
-      {
-        icon: <Award size={48} className="text-blue-500" />,
-        title: '공인된 자격증',
-        description: '업계 전문가가 인증한 공식 자격증을 획득하세요.'
-      },
-      {
-        icon: <Book size={48} className="text-green-500" />,
-        title: '맞춤형 학습',
-        description: '개인 맞춤형 학습 경로로 효율적인 성장을 경험하세요.'
-      },
-      {
-        icon: <Gift size={48} className="text-purple-500" />,
-        title: '특별 혜택',
-        description: '배지 보유자를 위한 특별 혜택과 기회를 제공합니다.'
-      },
-      {
-        icon: <Users size={48} className="text-orange-500" />,
-        title: '커뮤니티',
-        description: '전 세계 학습자들과 연결하고 지식을 공유하세요.'
-      }
-    ];
+  const features = [
+    {
+      icon: <Award size={48} className="text-blue-500" />,
+      title: '공인된 자격증',
+      description: '업계 전문가가 인증한 공식 자격증을 획득하세요.'
+    },
+    {
+      icon: <Book size={48} className="text-green-500" />,
+      title: '맞춤형 학습',
+      description: '개인 맞춤형 학습 경로로 효율적인 성장을 경험하세요.'
+    },
+    {
+      icon: <Gift size={48} className="text-purple-500" />,
+      title: '특별 혜택',
+      description: '배지 보유자를 위한 특별 혜택과 기회를 제공합니다.'
+    },
+    {
+      icon: <Users size={48} className="text-orange-500" />,
+      title: '커뮤니티',
+      description: '전 세계 학습자들과 연결하고 지식을 공유하세요.'
+    }
+  ];
 
-    return (
-      <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+  return (
+    <motion.div
+      key="main-page"
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen font-sans bg-gradient-to-br from-purple-50 to-white"
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.4 }}
+      className="min-h-screen bg-gradient-to-br from-purple-50 to-white"
     >
-      <div className="min-h-screen font-sans bg-gradient-to-br from-purple-50 to-white">
-        {/* 헤더 */}
-        <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
-    <div className="container mx-auto px-6 flex justify-between items-center">
-    <div className="flex items-center">
-      <div className="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center">
-        <Award className="text-white" />
-      </div>
-      <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">OpenBadge</span>
-    </div>
+      <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
+        <div className="container mx-auto px-6 flex justify-between items-center">
+          <NavLink to="/" className="flex items-center">
+            <div className="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center">
+              <Award className="text-white" />
+            </div>
+            <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
+              OpenBadge
+            </span>
+          </NavLink>
 
-    <nav className="hidden md:flex space-x-8">
-      <NavLink to="/" className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>홈</NavLink>
-      <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>마이프로필</NavLink>
-      <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>나의 뱃지지갑</NavLink>
-      <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>커뮤니티</NavLink>
-      <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>AI추천강좌</NavLink>
-      <NavLink to="/qna" className={({ isActive }) => isActive ? 'text-purple-600 transition-colors' : 'text-gray-700 hover:text-purple-600 transition-colors'}>도움말</NavLink>
-    </nav>
+          <nav className="hidden md:flex space-x-8">
+            <NavLink to="/" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>홈</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>마이프로필</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>나의 뱃지지갑</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>커뮤니티</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>AI추천강좌</NavLink>
+            <NavLink to="/qna" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>도움말</NavLink>
+          </nav>
 
-    <div className="flex items-center space-x-4">
-      {user ? (
-        <>
-          <span className="text-purple-600 font-semibold">{user.displayName || user.email}님 안녕하세요!</span>
-          <button 
-            onClick={() => {
-              signOut(auth).then(() => navigate('/'));
-            }}
-            className="bg-transparent border border-purple-600 text-purple-600 px-4 py-2 rounded-md hover:bg-purple-50 transition-colors"
-          >
-            로그아웃
-          </button>
-        </>
-      ) : (
-        <>
-          <button 
-            onClick={() => navigate('/login')}
-            className="bg-transparent border border-purple-600 text-purple-600 px-4 py-2 rounded-md hover:bg-purple-50 transition-colors"
-          >
-            로그인
-          </button>
-          <button 
-            onClick={() => navigate('/signup')}
-            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
-          >
-            회원가입
-          </button>
-        </>
-      )}
-    </div>
-  </div>
-</header>
+          <div className="flex items-center space-x-4">
+            {idToken ? (
+              <>
+                  <span className="text-purple-600 font-semibold">
+                    {user?.displayName || user?.email}님 안녕하세요!
+                  </span>           
+                  <button
+                  onClick={handleLogout}
+                  className="border border-purple-600 text-purple-600 px-4 py-2 rounded-md hover:bg-purple-50 transition-colors"
+                >
+                  로그아웃
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="border border-purple-600 text-purple-600 px-4 py-2 rounded-md hover:bg-purple-50 transition-colors"
+                >
+                  로그인
+                </button>
+                <button
+                  onClick={() => navigate('/register')}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+                >
+                  회원가입
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </header> 
 
 
         {/* 히어로 섹션 */}
@@ -263,19 +219,18 @@
           </div>
         </section>
 
-       {/* 파트너 로고 슬라이더 추가 */}
-      <section className="py-12 border-t border-gray-800">
+       <section className="bg-white py-16">
         <div className="container mx-auto px-6">
-          <h2 className="text-center text-xl font-bold mb-8">신뢰할 수 있는 파트너사</h2>
-          <LogoSlider logos={partnerLogos} />
+          <h2 className="text-3xl font-bold text-center mb-10">🔥 인기 뱃지 둘러보기</h2>
+          <BadgeSlider badges={badges} />
         </div>
-      </section>  
+      </section>
 
         {/* 배지 탐색 */}
         <section className="py-20">
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row justify-between items-center mb-10">
-              <h2 className="text-3xl font-bold mb-6 md:mb-0">인기 있는 배지</h2>
+              <h2 className="text-3xl font-bold mb-6 md:mb-0">우리의 뱃지 리스트</h2>
               <div className="relative">
                 <input 
                   type="text" 
@@ -412,9 +367,10 @@
             </div>
           </div>
         </footer>
-      </div>
-      </motion.div>
-    );
-  };
+    </motion.div>
+  );
+};
+
+
 
   export default OpenBadgeMainPage;

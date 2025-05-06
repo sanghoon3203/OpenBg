@@ -1,25 +1,72 @@
 // src/App.jsx
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase';
+
 import AuthPage from './components/AuthPage';
-import QnaPage from './components/QnaPage';
+import QnAPage from './components/QnaPage';
 import CombinedDashboard from './components/CombinedDashboard';
 import OpenBadgeMainPage from './components/OpenBadgeMainPage';
+import RegisterPage from './components/RegisterPage';
 
-const AnimatedRoutes = ({ idToken, setIdToken }) => {
+const AnimatedRoutes = ({ idToken, setIdToken, user }) => {
   const location = useLocation();
+
   return (
-    <AnimatePresence exitBeforeEnter>
+    <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<OpenBadgeMainPage />} />
-        <Route path="/qna" element={<QnaPage />} />
-        <Route path="/login" element={<AuthPage onAuthSuccess={setIdToken} />} />
+        <Route
+          path="/"
+          element={
+            <OpenBadgeMainPage idToken={idToken} setIdToken={setIdToken} user={user} />
+          }
+        />
+        <Route
+          path="/qna"
+          element={
+            idToken ? (
+              <QnAPage idToken={idToken} user={user} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <AuthPage
+              onAuthSuccess={(token) => {
+                localStorage.setItem('idToken', token);
+                setIdToken(token);
+              }}
+            />
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <RegisterPage
+              onAuthSuccess={(token) => {
+                localStorage.setItem('idToken', token);
+                setIdToken(token);
+              }}
+            />
+          }
+        />
         <Route
           path="/dashboard"
           element={
             idToken ? (
-              <CombinedDashboard idToken={idToken} />
+              <CombinedDashboard idToken={idToken} user={user} />
             ) : (
               <Navigate to="/login" replace />
             )
@@ -32,13 +79,19 @@ const AnimatedRoutes = ({ idToken, setIdToken }) => {
 };
 
 const App = () => {
-  // 테스트용 하드코딩 idToken (실제 서비스에서는 null로 시작)
-  const [idToken, setIdToken] = useState("hardcoded-id-token");
+  const [idToken, setIdToken] = useState(() => localStorage.getItem('idToken'));
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <Router>
-      {/* AnimatedRoutes 내부에서 페이지 전환 애니메이션 적용 */}
-      <AnimatedRoutes idToken={idToken} setIdToken={setIdToken} />
+      <AnimatedRoutes idToken={idToken} setIdToken={setIdToken} user={user} />
     </Router>
   );
 };

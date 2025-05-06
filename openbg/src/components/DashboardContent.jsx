@@ -83,374 +83,296 @@ const DashboardContent = ({ uid }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-        <p className="ml-4 text-lg font-medium text-gray-700">로딩 중...</p>
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="ml-4 text-lg font-medium text-gray-800">잠시만 기다려주세요</p>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-          <p className="font-bold">오류</p>
-          <p>사용자 정보를 찾을 수 없습니다.</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+        <div className="text-center p-6">
+          <p className="text-2xl font-bold text-gray-800 mb-2">정보를 찾을 수 없습니다</p>
+          <p className="text-gray-600">사용자 정보를 불러올 수 없습니다.</p>
         </div>
       </div>
     );
   }
 
+  const SectionTitle = ({ children }) => (
+    <h2 className="text-xl font-bold text-gray-900 mb-6">{children}</h2>
+  );
+
+  const Card = ({ children, className = "" }) => (
+    <div className={`bg-white rounded-2xl p-5 ${className}`}>
+      {children}
+    </div>
+  );
+
+  const InfoRow = ({ label, value, isEditMode = false, name = "", onChange = null, inputType = "text" }) => (
+    <div className="py-3 border-b border-gray-100 last:border-b-0">
+      <div className="flex justify-between items-center">
+        <span className="text-gray-500 text-sm">{label}</span>
+        {isEditMode ? (
+          <input
+            type={inputType}
+            name={name}
+            value={value || ''}
+            onChange={onChange}
+            className="w-1/2 text-right focus:outline-none text-gray-900 font-medium rounded-lg px-3 py-2 border border-gray-200 focus:border-blue-500"
+          />
+        ) : (
+          <span className="text-gray-900 font-medium">{value || '미설정'}</span>
+        )}
+      </div>
+    </div>
+  );
+
+  const Toggle = ({ label, description, name, checked, onChange, disabled = false }) => (
+    <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
+      <div>
+        <h4 className="text-gray-900 font-medium">{label}</h4>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+      <div className="relative inline-block w-14 align-middle select-none">
+        <input
+          type="checkbox"
+          id={`toggle-${name}`}
+          name={name}
+          checked={checked}
+          onChange={onChange}
+          disabled={disabled}
+          className="sr-only"
+        />
+        <label
+          htmlFor={`toggle-${name}`}
+          className={`block overflow-hidden h-8 rounded-full cursor-pointer ${disabled ? 'opacity-50' : ''}`}
+        >
+          <span
+            className={`absolute left-0 top-0 bottom-0 right-0 block rounded-full transition-all duration-300 ease-in-out ${
+              checked ? 'bg-blue-500' : 'bg-gray-200'
+            }`}
+          >
+            <span
+              className={`block bg-white rounded-full h-6 w-6 mt-1 shadow transform transition-transform duration-300 ease-in-out ${
+                checked ? 'translate-x-7 ml-1' : 'translate-x-1'
+              }`}
+            ></span>
+          </span>
+        </label>
+      </div>
+    </div>
+  );
+
+  const TabButton = ({ active, onClick, children }) => (
+    <button
+      onClick={onClick}
+      className={`py-4 px-6 border-b-2 font-medium transition-all duration-300 ${
+        active ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-400 hover:text-gray-900'
+      }`}
+    >
+      {children}
+    </button>
+  );
+
   return (
-    <div className="bg-gradient-to-br from-white to-blue-50 min-h-screen p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* 헤더 섹션 */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl">
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
-              <div className="h-28 w-28 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
-                {profile.photoURL ? (
-                  <img src={profile.photoURL} alt="프로필" className="h-full w-full object-cover" />
-                ) : (
-                  profile.displayName?.charAt(0) || "U"
-                )}
-              </div>
+    <div className="min-h-screen bg-transparent">
+      <div className="max-w-5xl mx-auto pt-8 pb-16 px-4">
+        {/* 헤더 프로필 섹션 */}
+        <Card className="mb-6">
+          <div className="flex flex-col items-center text-center py-3">
+            <div className="w-20 h-20 rounded-full bg-gray-100 mb-4 overflow-hidden flex items-center justify-center">
+              {profile.photoURL ? (
+                <img src={profile.photoURL} alt="프로필" className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-3xl font-bold text-gray-400">
+                  {profile.displayName?.charAt(0) || "U"}
+                </span>
+              )}
             </div>
-            <div className="flex-grow text-center md:text-left">
-              <h1 className="text-3xl font-bold text-gray-800">{profile.displayName || '사용자'}</h1>
-              <p className="text-lg text-gray-600">{profile.email}</p>
-              <p className="text-sm text-gray-500">가입일: {profile.createdAt ? new Date(profile.createdAt.toDate()).toLocaleDateString() : '정보 없음'}</p>
-              <div className="mt-3">
-                {isEditing ? (
-                  <div className="flex gap-2 justify-center md:justify-start">
-                    <button
-                      onClick={saveProfile}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      저장하기
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditing(false);
-                        setUpdatedProfile(profile);
-                      }}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      취소
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    프로필 수정
-                  </button>
-                )}
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">{profile.displayName || '사용자'}</h1>
+            <p className="text-gray-500 mb-4">{profile.email}</p>
+            
+            {isEditing ? (
+              <div className="flex space-x-3 mt-2">
+                <button
+                  onClick={saveProfile}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium text-sm hover:bg-blue-600 transition-colors"
+                >
+                  저장하기
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setUpdatedProfile(profile);
+                  }}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium text-sm hover:bg-gray-200 transition-colors"
+                >
+                  취소
+                </button>
               </div>
-            </div>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium text-sm hover:bg-blue-600 transition-colors"
+              >
+                프로필 수정
+              </button>
+            )}
           </div>
-        </div>
+        </Card>
 
         {/* 탭 메뉴 */}
-        <div className="bg-white rounded-xl shadow-lg mb-6">
-          <div className="flex overflow-x-auto">
-            <button
-              className={`flex-1 py-4 px-6 text-center font-medium border-b-2 focus:outline-none ${
-                activeTab === 'overview' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+        <div className="mb-6 border-b border-gray-200">
+          <div className="flex">
+            <TabButton 
+              active={activeTab === 'overview'} 
               onClick={() => setActiveTab('overview')}
             >
-              개요
-            </button>
-            <button
-              className={`flex-1 py-4 px-6 text-center font-medium border-b-2 focus:outline-none ${
-                activeTab === 'settings' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+              기본 정보
+            </TabButton>
+            <TabButton 
+              active={activeTab === 'settings'} 
               onClick={() => setActiveTab('settings')}
             >
               설정
-            </button>
-            <button
-              className={`flex-1 py-4 px-6 text-center font-medium border-b-2 focus:outline-none ${
-                activeTab === 'activity' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+            </TabButton>
+            <TabButton 
+              active={activeTab === 'activity'} 
               onClick={() => setActiveTab('activity')}
             >
-              활동
-            </button>
+              활동 내역
+            </TabButton>
           </div>
         </div>
 
         {/* 컨텐츠 섹션 */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          {activeTab === 'overview' && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">사용자 정보</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-medium mb-2">기본 정보</h3>
-                  {isEditing ? (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-sm text-gray-600 mb-1">이름</label>
-                        <input
-                          type="text"
-                          name="displayName"
-                          value={updatedProfile.displayName || ''}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-600 mb-1">직업</label>
-                        <input
-                          type="text"
-                          name="occupation"
-                          value={updatedProfile.occupation || ''}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-600 mb-1">위치</label>
-                        <input
-                          type="text"
-                          name="location"
-                          value={updatedProfile.location || ''}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <p><span className="font-medium text-gray-700">이름:</span> {profile.displayName || '미설정'}</p>
-                      <p><span className="font-medium text-gray-700">이메일:</span> {profile.email}</p>
-                      <p><span className="font-medium text-gray-700">직업:</span> {profile.occupation || '미설정'}</p>
-                      <p><span className="font-medium text-gray-700">위치:</span> {profile.location || '미설정'}</p>
-                    </div>
-                  )}
-                </div>
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            <Card>
+              <SectionTitle>기본 정보</SectionTitle>
+              <InfoRow 
+                label="이름" 
+                value={profile.displayName} 
+                isEditMode={isEditing}
+                name="displayName"
+                onChange={handleInputChange}
+              />
+              <InfoRow 
+                label="이메일" 
+                value={profile.email} 
+              />
+              <InfoRow 
+                label="직업" 
+                value={profile.job} 
+                isEditMode={isEditing}
+                name="job"
+                onChange={handleInputChange}
+              />
+              <InfoRow 
+                label="소속" 
+                value={profile.affiliation} 
+                isEditMode={isEditing}
+                name="affiliation"
+                onChange={handleInputChange}
+              />
+              <InfoRow 
+                label="관심분야" 
+                value={profile.interests} 
+                isEditMode={isEditing}
+                name="interests"
+                onChange={handleInputChange}
+              />
+            </Card>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-medium mb-2">시스템 정보</h3>
-                  <div className="space-y-2">
-                    <p>
-                      <span className="font-medium text-gray-700">계정 ID:</span>
-                      <span className="ml-2 px-2 py-1 bg-gray-200 rounded-md text-xs font-mono">{uid}</span>
-                    </p>
-                    <p><span className="font-medium text-gray-700">마지막 로그인:</span> {profile.lastLogin ? new Date(profile.lastLogin.toDate()).toLocaleString() : '정보 없음'}</p>
-                    <p>
-                      <span className="font-medium text-gray-700">계정 상태:</span>
-                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        활성
-                      </span>
-                    </p>
-                  </div>
+            <Card>
+              <SectionTitle>계정 정보</SectionTitle>
+              <InfoRow 
+                label="계정 ID" 
+                value={uid} 
+              />
+              <InfoRow 
+                label="가입일" 
+                value={profile.createdAt ? new Date(profile.createdAt.toDate()).toLocaleDateString() : '정보 없음'} 
+              />
+              <InfoRow 
+                label="마지막 로그인" 
+                value={profile.lastLogin ? new Date(profile.lastLogin.toDate()).toLocaleString() : '정보 없음'} 
+              />
+              <div className="py-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">계정 상태</span>
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    활성
+                  </span>
                 </div>
               </div>
-            </div>
-          )}
+            </Card>
+          </div>
+        )}
 
-          {activeTab === 'settings' && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">설정</h2>
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <Card>
+              <SectionTitle>앱 설정</SectionTitle>
+            
               
-              <div className="space-y-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-medium mb-3">앱 설정</h3>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">언어 설정</h4>
-                        <p className="text-sm text-gray-500">앱에서 사용할 언어를 선택하세요</p>
-                      </div>
-                      {isEditing ? (
-                        <select
-                          name="settings.language"
-                          value={updatedProfile.settings?.language || ''}
-                          onChange={handleInputChange}
-                          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="ko">한국어</option>
-                          <option value="en">English</option>
-                          <option value="ja">日本語</option>
-                          <option value="zh">中文</option>
-                        </select>
-                      ) : (
-                        <span className="text-gray-700">{profile.settings?.language || '미설정'}</span>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">다크 모드</h4>
-                        <p className="text-sm text-gray-500">어두운 테마로 앱을 사용합니다</p>
-                      </div>
-                      {isEditing ? (
-                        <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                          <input
-                            type="checkbox"
-                            name="settings.dark_mode"
-                            id="dark-mode-toggle"
-                            checked={updatedProfile.settings?.dark_mode || false}
-                            onChange={() => handleToggleChange('settings.dark_mode')}
-                            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-                          />
-                          <label
-                            htmlFor="dark-mode-toggle"
-                            className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${
-                              updatedProfile.settings?.dark_mode ? 'bg-blue-500' : 'bg-gray-300'
-                            }`}
-                          ></label>
-                        </div>
-                      ) : (
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          profile.settings?.dark_mode ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {profile.settings?.dark_mode ? '활성화' : '비활성화'}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">알림 설정</h4>
-                        <p className="text-sm text-gray-500">앱 알림을 받습니다</p>
-                      </div>
-                      {isEditing ? (
-                        <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                          <input
-                            type="checkbox"
-                            name="settings.notifications"
-                            id="notifications-toggle"
-                            checked={updatedProfile.settings?.notifications || false}
-                            onChange={() => handleToggleChange('settings.notifications')}
-                            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-                          />
-                          <label
-                            htmlFor="notifications-toggle"
-                            className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${
-                              updatedProfile.settings?.notifications ? 'bg-blue-500' : 'bg-gray-300'
-                            }`}
-                          ></label>
-                        </div>
-                      ) : (
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          profile.settings?.notifications ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {profile.settings?.notifications ? '활성화' : '비활성화'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-medium mb-3">개인정보</h3>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">프로필 공개 설정</h4>
-                        <p className="text-sm text-gray-500">내 프로필을 다른 사용자에게 공개합니다</p>
-                      </div>
-                      {isEditing ? (
-                        <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                          <input
-                            type="checkbox"
-                            name="settings.public_profile"
-                            id="public-profile-toggle"
-                            checked={updatedProfile.settings?.public_profile || false}
-                            onChange={() => handleToggleChange('settings.public_profile')}
-                            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-                          />
-                          <label
-                            htmlFor="public-profile-toggle"
-                            className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${
-                              updatedProfile.settings?.public_profile ? 'bg-blue-500' : 'bg-gray-300'
-                            }`}
-                          ></label>
-                        </div>
-                      ) : (
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          profile.settings?.public_profile ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {profile.settings?.public_profile ? '활성화' : '비활성화'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'activity' && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">활동 내역</h2>
+              <Toggle 
+                label="다크 모드" 
+                description="어두운 테마로 앱을 사용합니다" 
+                name="settings.dark_mode" 
+                checked={isEditing ? updatedProfile.settings?.dark_mode : profile.settings?.dark_mode} 
+                onChange={() => isEditing && handleToggleChange('settings.dark_mode')}
+                disabled={!isEditing}
+              />
               
-              {/* 이 부분은 실제 데이터가 있을 경우 연결해야 합니다 */}
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              <Toggle 
+                label="알림 설정" 
+                description="앱 알림을 받습니다" 
+                name="settings.notifications" 
+                checked={isEditing ? updatedProfile.settings?.notifications : profile.settings?.notifications} 
+                onChange={() => isEditing && handleToggleChange('settings.notifications')}
+                disabled={!isEditing}
+              />
+            </Card>
+
+            <Card>
+              <SectionTitle>개인정보 설정</SectionTitle>
+              
+              <Toggle 
+                label="프로필 공개 설정" 
+                description="내 프로필을 다른 사용자에게 공개합니다" 
+                name="settings.public_profile" 
+                checked={isEditing ? updatedProfile.settings?.public_profile : profile.settings?.public_profile} 
+                onChange={() => isEditing && handleToggleChange('settings.public_profile')}
+                disabled={!isEditing}
+              />
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'activity' && (
+          <div className="space-y-6">
+            <Card>
+              <SectionTitle>활동 내역</SectionTitle>
+              
+              <div className="flex items-center justify-center py-12 text-center">
+                <div>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-yellow-700">
-                      아직 활동 내역이 없습니다. 앱을 사용하면 여기에 활동이 표시됩니다.
-                    </p>
-                  </div>
+                  <p className="text-gray-900 font-medium mb-1">활동 내역이 없습니다</p>
+                  <p className="text-gray-500 text-sm">앱을 사용하면 여기에 활동이 표시됩니다.</p>
                 </div>
               </div>
-              
-              {/* 활동 내역 샘플 */}
-              <div className="space-y-4">
-                <div className="border-l-4 border-blue-500 pl-4 py-2">
-                  <p className="text-sm text-gray-500">2023년 12월 3일 11:23</p>
-                  <p className="font-medium">로그인 성공</p>
-                </div>
-                
-                <div className="border-l-4 border-green-500 pl-4 py-2">
-                  <p className="text-sm text-gray-500">2023년 12월 1일 15:45</p>
-                  <p className="font-medium">프로필 업데이트</p>
-                </div>
-                
-                <div className="border-l-4 border-blue-500 pl-4 py-2">
-                  <p className="text-sm text-gray-500">2023년 11월 28일 09:12</p>
-                  <p className="font-medium">로그인 성공</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+            </Card>
+          </div>
+        )}
       </div>
-
-      {/* CSS 스타일 */}
-      <style jsx>{`
-        .toggle-checkbox:checked {
-          right: 0;
-          border-color: #3b82f6;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-          background-color: #3b82f6;
-        }
-        .toggle-checkbox {
-          right: 0;
-          z-index: 1;
-          border-color: #ccc;
-          transition: all 0.3s;
-        }
-        .toggle-label {
-          width: 100%;
-          transition: background-color 0.3s;
-        }
-      `}</style>
     </div>
   );
 };

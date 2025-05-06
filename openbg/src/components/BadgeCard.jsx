@@ -9,7 +9,7 @@ const BadgeCard = ({ title, issuer, date, skills = [], isEmptyCard = false, onDe
       >
         <div className="text-gray-400 hover:text-indigo-500 text-center transition-colors duration-300">
           <span className="block text-4xl mb-2">+</span>
-          <span className="font-medium">컨텐츠 추가하기</span>
+          <span className="font-medium">뱃지 추가 하기</span>
         </div>
       </div>
     );
