@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, addDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import BadgeCard from './BadgeCard';
+import { setDoc, doc as firestoreDoc } from 'firebase/firestore';
 
 const PortfolioContent = () => {
   const [badges, setBadges] = useState([]);
@@ -36,17 +37,17 @@ const PortfolioContent = () => {
   // 지갑 생성 (더미 뱃지 넣기)
   const createWallet = async () => {
     if (!user) return;
-
+  
     const dummyBadge = {
       badge_url: '',
-      id: `dummy-${Date.now()}`,
+      id: 'dummy-wallet',
       type: 'Assertion',
       name: '지갑이 생성되었습니다.',
       description: 'OpenBadge 시스템에 의해 지갑이 생성되었습니다.',
       issuer: 'OpenBadge 시스템',
       issuedOn: new Date().toISOString().split('T')[0],
       addedAt: new Date().toISOString(),
-      image: '', // 기본 이미지 없음
+      image: '',
       skills: [],
       alignment: [],
       recipient: {
@@ -58,11 +59,11 @@ const PortfolioContent = () => {
         type: 'HostedBadge'
       }
     };
-    
-
-    const badgeRef = collection(db, 'users', user.uid, 'badges');
-    await addDoc(badgeRef, dummyBadge);
-    fetchBadges(); // 지갑 생성 후 다시 fetch
+  
+    const badgeDocRef = firestoreDoc(db, 'users', user.uid, 'badges', dummyBadge.id);
+    await setDoc(badgeDocRef, dummyBadge);
+  
+    fetchBadges(); // 갱신
   };
 
   const handleDeleteBadge = async (badgeId) => {
@@ -84,7 +85,6 @@ const PortfolioContent = () => {
       if (!res.ok) throw new Error('URL 접근 실패');
       const badgeJson = await res.json();
   
-      // Open Badges v2.0 기반 데이터 추출
       const badgeData = {
         badge_url: newBadgeUrl,
         id: badgeJson.id || newBadgeUrl,
@@ -101,15 +101,18 @@ const PortfolioContent = () => {
         addedAt: new Date().toISOString(),
       };
   
-      const badgeRef = collection(db, 'users', user.uid, 'badges');
-      const docRef = await addDoc(badgeRef, badgeData);
-      setBadges([...badges, { ...badgeData, badgeId: docRef.id }]);
+      const docId = badgeData.id;
+      const badgeDocRef = firestoreDoc(db, 'users', user.uid, 'badges', docId);
+      await setDoc(badgeDocRef, badgeData);  
+  
+      setBadges([...badges, { ...badgeData, badgeId: docId }]);
       setShowAddBadgeForm(false);
       setNewBadgeUrl('');
     } catch (err) {
       alert('뱃지를 불러오는 데 실패했습니다. URL을 확인해주세요.');
     }
   };
+  
 
   if (loading) {
     return (
