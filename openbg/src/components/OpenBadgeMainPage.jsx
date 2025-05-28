@@ -122,11 +122,11 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
               <Award className="text-white" />
             </div>
             <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
-              OpenBadge
+              OPBG
             </span>
           </NavLink>
 
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex space-x-8 text-[20px]">
             <NavLink to="/" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>홈</NavLink>
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>마이프로필</NavLink>
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>나의 뱃지지갑</NavLink>
@@ -135,7 +135,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
             <NavLink to="/qna" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>도움말</NavLink>
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 ">
             {idToken ? (
               <>
                   <span className="text-purple-600 font-semibold">
@@ -179,34 +179,33 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
               <p className="text-xl text-gray-600">
                 OpenBadge에서 발급받은 뱃지를 추가하고, 커리어를 성장시켜보세요! <p>믿을 수 있는 기관에서 발행하는 디지털 배지로 당신의 실력을 증명하세요.</p>
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center">
-                  배지 찾아보기 <ArrowRight className="ml-2" />
-                </button>
-              </div>
+              
             </div>
-            <div className="relative">
-              <div className="w-full h-96 bg-gradient-to-r from-purple-400 to-purple-600 rounded-2xl shadow-xl overflow-hidden relative">
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                  <div className="grid grid-cols-2 gap-6 p-6 transform rotate-12">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="w-40 h-40 bg-white rounded-xl shadow-lg flex items-center justify-center p-4 transform hover:scale-105 transition-transform">
-                        <Award size={64} className="text-purple-500" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-yellow-400 rounded-full opacity-70 purple-xl"></div>
-              <div className="absolute -top-6 -left-6 w-24 h-24 bg-purple-400 rounded-full opacity-70 purple-xl"></div>
-            </div>
+          <div className="relative flex items-center justify-center w-full md:w-auto h-auto md:min-h-0"> {/* 부모 div의 크기 조절 */}
+            <motion.img
+              src="src\assets\main2.png"
+              alt="히어로 뱃지 이미지"
+              className="w-full max-w-md md:max-w-lg lg:max-w-xl object-contain rounded-lg" // 그림자 제거, 크기 반응형 조절
+                                                                                              // 필요시 shadow-xl 등 추가
+              whileHover={{
+                scale: 1.40, // 호버 시 8% 확대 (조금 더 눈에 띄게)
+                rotateZ: 2.0,  // Z축으로 살짝 회전
+                y: -20,      // Y축으로 살짝 위로 이동
+                transition: { duration: 0.25, ease: "circOut" } // 애니메이션 속도 및 이징 조절
+              }}
+            />
+            <div className="absolute -bottom-12 -right-12 w-36 h-36 bg-yellow-300 rounded-full opacity-30 blur-2xl animate-pulse-slow -z-10"></div>
+            <div className="absolute -top-10 -left-10 w-32 h-32 bg-purple-300 rounded-full opacity-30 blur-2xl animate-pulse-slow animation-delay-2000 -z-10"></div>
           </div>
-        </section>
+          {/* --- 오른쪽 이미지 영역 수정 끝 --- */}
+
+        </div>
+      </section>
 
         {/* 주요 기능 */}
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-6">
-            <h2 className="text-3xl font-bold text-center mb-16">OpenBadge의 특별함</h2>
+            <h2 className="text-3xl font-bold text-center mb-16">OPBG는 무엇이 다른가?</h2>
             <div className="grid md:grid-cols-4 gap-8">
               {features.map((feature, index) => (
                 <div key={index} className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
@@ -221,8 +220,9 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
 
        <section className="bg-white py-16">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-10">🔥 인기 뱃지 둘러보기</h2>
+          <h1 className="text-3xl font-bold text-center mb-10">🔥인기 뱃지 둘러보기🔥</h1>
           <BadgeSlider badges={badges} />
+        <h2 className="text-3xl font-bold text-center mb-10">배우고 싶은 모든것을 배울 수 있습니다!</h2>
         </div>
       </section>
 

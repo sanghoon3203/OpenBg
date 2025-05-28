@@ -55,6 +55,10 @@ const RegisterPage = ({ onAuthSuccess }) => {
   };
 
   return (
+    <div 
+      className="min-h-screen bg-transparent" // font-sans 클래스 제거
+      style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }} // 직접 폰트 지정
+    >
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-10">
@@ -211,6 +215,7 @@ const RegisterPage = ({ onAuthSuccess }) => {
           가입 시 서비스 이용약관 및 개인정보처리방침에 동의하게 됩니다.
         </p>
       </div>
+    </div>
     </div>
   );
 };

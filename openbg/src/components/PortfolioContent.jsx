@@ -138,6 +138,10 @@ const PortfolioContent = () => {
   }
 
   return (
+    <div 
+      className="min-h-screen bg-transparent" // font-sans 클래스 제거
+      style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }} // 직접 폰트 지정
+    >
     <div className="bg-gray-50 p-6 rounded-xl">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">내 배지 포트폴리오</h2>
@@ -215,6 +219,7 @@ const PortfolioContent = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

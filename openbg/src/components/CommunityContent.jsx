@@ -45,6 +45,9 @@ const WritingForm = ({
   }, [isFormVisible, activeTab, setSelectedCategory]); // isFormVisible이 true로 바뀔 때 실행
 
   return (
+    <div className="min-h-screen bg-transparent" 
+      style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }} // 직접 폰트 지정
+    >
     <div className="mb-10 bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">새 글 작성하기</h2>
@@ -171,6 +174,7 @@ const WritingForm = ({
           </button>
         </div>
       </form>
+    </div>
     </div>
   );
 };
@@ -392,8 +396,11 @@ const CommunityContents = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    
+    <div className="max-w-4xl mx-auto px-4 py-8"
+    style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
       {/* 헤더 */}
+      
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">커뮤니티</h1>
         <p className="text-gray-500 mt-2">배지를 활용한 다양한 소통 공간입니다</p>

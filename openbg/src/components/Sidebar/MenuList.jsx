@@ -1,9 +1,10 @@
+// src/components/Sidebar/MenuList.jsx
 import React from 'react';
 
 const MenuList = ({ activeMenu, setActiveMenu }) => {
   const menus = [
     '대시보드',
-    '추천 강좌',
+    '맞춤 뱃지 추천',
     '커뮤니티 활동',
     '내 배지 포트폴리오'
   ];
@@ -17,7 +18,12 @@ const MenuList = ({ activeMenu, setActiveMenu }) => {
             onClick={() => setActiveMenu(menu)}
           >
             <span className="text-gray-500 mr-4">•</span>
-            <span>{menu}</span>
+            <span 
+              className="font-semibold" // 세미볼드는 Tailwind 클래스 사용
+              style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }} // 직접 폰트 지정
+            >
+              {menu}
+            </span>
           </button>
         </li>
       ))}

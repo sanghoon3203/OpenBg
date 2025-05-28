@@ -12,7 +12,7 @@ const MainContent = ({ activeMenu, idToken }) => {
         return <DashboardContent idToken={idToken} />;
       case '프로필':
         return <ProfileContent idToken={idToken} />;
-      case '추천 강좌':
+      case '맞춤 뱃지 추천':
         return <RecommendedCoursesContent idToken={idToken} />;
       case '커뮤니티 활동':
         return <CommunityContent idToken={idToken} />;

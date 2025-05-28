@@ -21,8 +21,11 @@ const BadgeOverview = () => {
 
   return (
     <div className="flex items-center mb-6">
-      <Medal className="text-yellow-300 mr-2" size={20} />
-      <span className="text-lg">나의 배지</span>
+      <Medal className="text-yellow-300 mr-2" size={40} />
+      <span className="font-bold text-[24px]"  
+            style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }} // 직접 폰트 지정
+            >나의 배지</span>
+
       <span className="ml-auto bg-orange-500 text-white px-2 py-1 rounded-md text-sm">
         {badgeCount}
       </span>

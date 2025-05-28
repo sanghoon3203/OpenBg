@@ -178,8 +178,9 @@ const DashboardContent = ({ uid }) => {
   );
 
   return (
-    <div className="min-h-screen bg-transparent">
-      <div className="max-w-5xl mx-auto pt-8 pb-16 px-4">
+<div className="min-h-screen bg-transparent" // font-sans 클래스 제거
+      style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }} // 직접 폰트 지정
+    >      <div className="max-w-5xl mx-auto pt-8 pb-16 px-4">
         {/* 헤더 프로필 섹션 */}
         <Card className="mb-6">
           <div className="flex flex-col items-center text-center py-3">
