@@ -118,13 +118,9 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
       <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           <NavLink to="/" className="flex items-center">
-            <div className="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center">
-              <Award className="text-white" />
-            </div>
-            <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
-              OPBG
-            </span>
-          </NavLink>
+          <img src="src\assets\main4.svg" alt="OPBG 로고" className="w-[150px] h-auto rounded-lg" // 높이를 10 (40px)로 설정, 너비는 자동(auto)으로 비율 유지
+                                  
+/>          </NavLink>
 
           <nav className="hidden md:flex space-x-8 text-[20px]">
             <NavLink to="/" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>홈</NavLink>
@@ -173,7 +169,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
         <section className="relative pt-32 pb-20 px-6 min-h-screen flex items-center">
           <div className="container mx-auto grid md:grid-cols-2 gap-10 items-center">
             <div className="space-y-6">
-              <h1 className="text-5xl font-bold leading-tight">
+              <h1 className="text-7xl font-bold leading-tight">
                 당신의 <span className="bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">성장</span>을 증명하는<p>디지털 배지</p> 
               </h1>
               <p className="text-xl text-gray-600">
@@ -183,9 +179,9 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
             </div>
           <div className="relative flex items-center justify-center w-full md:w-auto h-auto md:min-h-0"> {/* 부모 div의 크기 조절 */}
             <motion.img
-              src="src\assets\main2.png"
+              src="src\assets\main3.png"
               alt="히어로 뱃지 이미지"
-              className="w-full max-w-md md:max-w-lg lg:max-w-xl object-contain rounded-lg" // 그림자 제거, 크기 반응형 조절
+              className="w-full max-w-md md:max-w-lg lg:max-w-xxl object-contain rounded-lg" // 그림자 제거, 크기 반응형 조절
                                                                                               // 필요시 shadow-xl 등 추가
               whileHover={{
                 scale: 1.40, // 호버 시 8% 확대 (조금 더 눈에 띄게)
