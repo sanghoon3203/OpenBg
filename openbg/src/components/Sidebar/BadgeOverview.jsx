@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Medal } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
-import { auth, db } from '/Users/kimsanghoon/react/openbg/src/firebase';
+import { auth, db } from '../../firebase';
 
 const BadgeOverview = () => {
   const [badgeCount, setBadgeCount] = useState(0);
