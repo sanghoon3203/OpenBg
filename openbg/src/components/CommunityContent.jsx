@@ -26,7 +26,7 @@ const UserBadges = ({ badges }) => {
   return (
     <div className="flex -space-x-1 overflow-hidden">
       {badges.slice(0, 3).map((badge, index) => (
-        <div key={index} className="inline-block h-5 w-5 rounded-full bg-blue-100 text-xs flex items-center justify-center border border-white ring-2 ring-white">
+        <div key={index} className="inline-block h-5 w-5 rounded-full bg-indigo-100 text-xs flex items-center justify-center border border-white ring-2 ring-white">
           {/* 뱃지 이름이 길 경우 첫 글자만 표시 */}
           {badge && badge.length > 0 ? badge.charAt(0).toUpperCase() : '?'}
         </div>
@@ -90,7 +90,7 @@ const WritingForm = ({
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
                   className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${selectedCategory === category.id
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-indigo-500 text-white'
                       : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                     }`}
                 >
@@ -106,7 +106,7 @@ const WritingForm = ({
             <input
               id="title"
               ref={titleRef}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
               value={title}
               onCompositionStart={() => setIsComposing(true)}
               onCompositionUpdate={() => setIsComposing(true)}
@@ -126,7 +126,7 @@ const WritingForm = ({
             <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">내용</label>
             <textarea
               id="content"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none h-32"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none h-32"
               placeholder="내용을 입력해주세요"
               value={content}
               onCompositionStart={() => setIsComposing(true)}
@@ -151,7 +151,7 @@ const WritingForm = ({
                   type="button"
                   onClick={() => handleBadgeToggle(badge.name)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedBadges.includes(badge.name)
-                      ? 'bg-blue-50 text-blue-600 border border-blue-200'
+                      ? 'bg-indigo-50 text-indigo-600 border border-indigo-200'
                       : 'bg-gray-50 text-gray-600 border border-gray-100 hover:bg-gray-100'
                     }`}
                 >
@@ -180,7 +180,7 @@ const WritingForm = ({
           <div className="pt-4">
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+              className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors"
             >
               글 등록하기
             </button>
@@ -228,14 +228,14 @@ const CommentForm = ({ postId, onCommentAdded }) => {
         value={commentText}
         onChange={(e) => setCommentText(e.target.value)}
         placeholder="따뜻한 댓글을 남겨주세요..."
-        className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500 focus:border-transparent outline-none"
+        className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:border-transparent outline-none"
         rows="3"
         required
         disabled={isSubmitting}
       />
       <button 
         type="submit" 
-        className="mt-2 px-5 py-2.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 disabled:opacity-50"
+        className="mt-2 px-5 py-2.5 bg-indigo-500 text-white text-sm rounded-lg hover:bg-indigo-600 disabled:opacity-50"
         disabled={isSubmitting || !commentText.trim()}
       >
         {isSubmitting ? '등록 중...' : '댓글 등록'}
@@ -309,7 +309,7 @@ const PostCard = ({ post, currentUserUid, onDeletePost }) => {
     <div className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-start mb-3">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer">{post.title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 cursor-pointer">{post.title}</h3>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-gray-500 text-sm">{post.userEmail}</p>
             <UserBadges badges={post.userTopBadges} /> {/* UserBadges 컴포넌트 사용 */}
@@ -338,7 +338,7 @@ const PostCard = ({ post, currentUserUid, onDeletePost }) => {
           {post.requiredBadges.map((badge, index) => (
             <span
               key={index}
-              className="inline-block px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium"
+              className="inline-block px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs rounded-full font-medium"
             >
               {badge}
             </span>
@@ -350,7 +350,7 @@ const PostCard = ({ post, currentUserUid, onDeletePost }) => {
       <div className="mt-5 pt-4 border-t border-gray-100">
         <button
           onClick={() => setShowComments(!showComments)}
-          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
         >
           {showComments ? '댓글 숨기기' : '댓글 보기'}
         </button>
@@ -479,14 +479,14 @@ const CommunityContents = () => {
           key={category.id}
           onClick={() => { setActiveTab(category.id); setIsWriting(false); }}
           className={`px-5 py-3.5 rounded-lg text-sm font-medium whitespace-nowrap flex items-center gap-1.5
-            ${activeTab === category.id ? 'bg-blue-500 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}
-            ${recommendedBoards.includes(category.id) ? 'ring-2 ring-blue-200 ring-offset-2' : ''}`}
+            ${activeTab === category.id ? 'bg-indigo-500 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}
+            ${recommendedBoards.includes(category.id) ? 'ring-2 ring-indigo-200 ring-offset-2' : ''}`}
           style={{ overflow: 'visible' }}
         >
           <span>{category.icon}</span>
           <span>{category.name}</span>
           {recommendedBoards.includes(category.id) && (
-            <span className="ml-1 text-xs px-1.5 py-0.5 bg-blue-200 text-blue-800 rounded-full">추천</span>
+            <span className="ml-1 text-xs px-1.5 py-0.5 bg-indigo-200 text-indigo-800 rounded-full">추천</span>
           )}
         </button>
       ))}
@@ -496,7 +496,7 @@ const CommunityContents = () => {
   const WriteButton = () => (
     <button
       onClick={() => setIsWriting(true)}
-      className="fixed bottom-8 right-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-lg transition-all flex items-center justify-center z-50"
+      className="fixed bottom-8 right-8 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-4 shadow-lg transition-all flex items-center justify-center z-50"
     >
       <span className="text-xl">✏️</span>
     </button>
@@ -561,7 +561,7 @@ const CommunityContents = () => {
               <p className="text-gray-500">등록된 글이 없습니다.</p>
               <button
                 onClick={() => setIsWriting(true)}
-                className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+                className="mt-4 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm transition-colors"
               >
                 첫 글 작성하기
               </button>
