@@ -44,17 +44,20 @@ export const updateSettings = (idToken, data) =>
   });
 
 // Recommendation
-  export const getBadgeRecommendations = (userId, idToken) =>
-    axios.post(
-      `${API_BASE}/api/recommendations/${userId}`,
-      {}, // POST 요청 본문이 필요 없는 경우 빈 객체 전달
-      {
-        headers: {
-          Authorization: `Bearer ${idToken}`,
-          // 필요시 'Content-Type': 'application/json' 추가
-        },
-      }
-    );
+// userId 파라미터가 이제 Firestore의 user_id 필드 값을 의미하도록 합니다.
+// user_doc_id는 Firebase Auth UID를 의미할 수 있으나, 현재 API 호출에서는 직접 사용되지 않습니다.
+// API 경로에는 firestore_user_id (실제 문서 내 user_id 필드값)가 사용됩니다.
+export const getBadgeRecommendations = (user_doc_id, idToken, firestore_user_id) =>
+  axios.post(
+    `${API_BASE}/api/recommendations/${firestore_user_id}`, // URL에 firestore_user_id 사용
+    {}, // POST 요청 본문이 필요 없는 경우 빈 객체 전달
+    {
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        // 필요시 'Content-Type': 'application/json' 추가
+      },
+    }
+  );
 
 // Main Page
 export const getMainPage = () => axios.get(`${API_BASE}/main`);
