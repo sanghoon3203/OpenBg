@@ -30,7 +30,7 @@ const AuthPage = ({ onAuthSuccess }) => {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-extrabold text-purple-600">OPEN BG</h1>
+          <h1 className="text-3xl font-extrabold text-indigo-600">OPEN BG</h1>
           <p className="mt-2 text-gray-600">계정에 로그인하세요</p>
         </div>
 

@@ -122,7 +122,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
                                   
 />          </NavLink>
 
-          <nav className="hidden md:flex space-x-8 text-[20px]">
+          <nav className="hidden md:flex space-x-8 text-[16px]">
             <NavLink to="/" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>홈</NavLink>
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>마이프로필</NavLink>
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>나의 뱃지지갑</NavLink>
@@ -169,7 +169,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
         <section className="relative pt-32 pb-20 px-6 min-h-screen flex items-center">
           <div className="container mx-auto grid md:grid-cols-2 gap-10 items-center">
             <div className="space-y-6">
-              <h1 className="text-7xl font-bold leading-tight">
+              <h1 className="text-6xl font-bold leading-tight">
                 당신의 <span className="bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">성장</span>을 증명하는<p>디지털 배지</p> 
               </h1>
               <p className="text-xl text-gray-600">

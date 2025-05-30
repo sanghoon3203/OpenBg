@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore'; // collection, getDocs 추가
 
 const DashboardContent = ({ uid }) => {
   const [profile, setProfile] = useState(null);
@@ -8,71 +8,67 @@ const DashboardContent = ({ uid }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updatedProfile, setUpdatedProfile] = useState({});
   const [activeTab, setActiveTab] = useState('overview');
+  const [acquiredBadges, setAcquiredBadges] = useState([]); // 획득한 뱃지를 위한 상태 추가
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!uid) return;
+    const fetchUserDataAndBadges = async () => {
+      if (!uid) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
       try {
+        // 사용자 프로필 정보 가져오기
         const userDocRef = doc(db, 'users', uid);
         const userDocSnap = await getDoc(userDocRef);
+
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data();
           setProfile(userData);
           setUpdatedProfile(userData);
+
+          // 사용자 뱃지 정보 가져오기 (users/{uid}/badges 컬렉션)
+          const badgesColRef = collection(db, 'users', uid, 'badges');
+          const badgesSnapshot = await getDocs(badgesColRef);
+          const badgesData = badgesSnapshot.docs.map(doc => doc.data().name || doc.id); // 각 뱃지 문서의 'name' 필드를 사용, 없으면 ID를 사용
+          setAcquiredBadges(badgesData);
+
+        } else {
+          setProfile(null); // 사용자를 찾을 수 없는 경우
+          console.log("사용자 문서를 찾을 수 없습니다.");
         }
       } catch (err) {
-        console.error("사용자 정보를 불러오는 데 실패했습니다:", err);
+        console.error("사용자 정보 또는 뱃지를 불러오는 데 실패했습니다:", err);
+        setProfile(null); // 오류 발생 시 프로필 초기화
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserProfile();
+    fetchUserDataAndBadges();
   }, [uid]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setUpdatedProfile({
-        ...updatedProfile,
-        [parent]: {
-          ...updatedProfile[parent],
-          [child]: value
-        }
-      });
-    } else {
-      setUpdatedProfile({
-        ...updatedProfile,
-        [name]: value
-      });
-    }
+    setUpdatedProfile({
+      ...updatedProfile,
+      [name]: value
+    });
   };
 
-  const handleToggleChange = (name) => {
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setUpdatedProfile({
-        ...updatedProfile,
-        [parent]: {
-          ...updatedProfile[parent],
-          [child]: !updatedProfile[parent][child]
-        }
-      });
-    } else {
-      setUpdatedProfile({
-        ...updatedProfile,
-        [name]: !updatedProfile[name]
-      });
-    }
+  const handleArrayInputChange = (name, value) => {
+    const arrayValue = value.split(',').map(item => item.trim()).filter(item => item);
+    setUpdatedProfile({
+      ...updatedProfile,
+      [name]: arrayValue
+    });
   };
 
   const saveProfile = async () => {
     try {
       const userDocRef = doc(db, 'users', uid);
       await updateDoc(userDocRef, updatedProfile);
-      setProfile(updatedProfile);
+      setProfile(updatedProfile); // 로컬 프로필 상태도 업데이트
       setIsEditing(false);
       alert("프로필이 성공적으로 업데이트되었습니다!");
     } catch (err) {
@@ -84,7 +80,7 @@ const DashboardContent = ({ uid }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
         <p className="ml-4 text-lg font-medium text-gray-800">잠시만 기다려주세요</p>
       </div>
     );
@@ -116,13 +112,54 @@ const DashboardContent = ({ uid }) => {
       <div className="flex justify-between items-center">
         <span className="text-gray-500 text-sm">{label}</span>
         {isEditMode ? (
-          <input
-            type={inputType}
-            name={name}
-            value={value || ''}
-            onChange={onChange}
-            className="w-1/2 text-right focus:outline-none text-gray-900 font-medium rounded-lg px-3 py-2 border border-gray-200 focus:border-blue-500"
-          />
+          inputType === "select" ? (
+            <select
+              name={name}
+              value={value || ''}
+              onChange={onChange}
+              className="w-1/2 text-right focus:outline-none text-gray-900 font-medium rounded-lg px-3 py-2 border border-gray-200 focus:border-indigo-500"
+            >
+              <option value="">선택하세요</option>
+              <option value="Beginner">초급</option>
+              <option value="Intermediate">중급</option>
+              <option value="Advanced">고급</option>
+              <option value="Expert">전문가</option>
+            </select>
+          ) : inputType === "education" ? (
+            <select
+              name={name}
+              value={value || ''}
+              onChange={onChange}
+              className="w-1/2 text-right focus:outline-none text-gray-900 font-medium rounded-lg px-3 py-2 border border-gray-200 focus:border-indigo-500"
+            >
+              <option value="">선택하세요</option>
+              <option value="고등학교">고등학교</option>
+              <option value="전문대학">전문대학</option>
+              <option value="대학교">대학교</option>
+              <option value="대학원">대학원</option>
+              <option value="기타">기타</option>
+            </select>
+          ) : inputType === "engagement" ? (
+            <select
+              name={name}
+              value={value || ''}
+              onChange={onChange}
+              className="w-1/2 text-right focus:outline-none text-gray-900 font-medium rounded-lg px-3 py-2 border border-gray-200 focus:border-indigo-500"
+            >
+              <option value="">선택하세요</option>
+              <option value="Low">낮음</option>
+              <option value="Medium">보통</option>
+              <option value="High">높음</option>
+            </select>
+          ) : (
+            <input
+              type={inputType}
+              name={name}
+              value={value || ''}
+              onChange={onChange}
+              className="w-1/2 text-right focus:outline-none text-gray-900 font-medium rounded-lg px-3 py-2 border border-gray-200 focus:border-indigo-500"
+            />
+          )
         ) : (
           <span className="text-gray-900 font-medium">{value || '미설정'}</span>
         )}
@@ -130,38 +167,33 @@ const DashboardContent = ({ uid }) => {
     </div>
   );
 
-  const Toggle = ({ label, description, name, checked, onChange, disabled = false }) => (
-    <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
-      <div>
-        <h4 className="text-gray-900 font-medium">{label}</h4>
-        <p className="text-sm text-gray-500">{description}</p>
-      </div>
-      <div className="relative inline-block w-14 align-middle select-none">
-        <input
-          type="checkbox"
-          id={`toggle-${name}`}
-          name={name}
-          checked={checked}
-          onChange={onChange}
-          disabled={disabled}
-          className="sr-only"
-        />
-        <label
-          htmlFor={`toggle-${name}`}
-          className={`block overflow-hidden h-8 rounded-full cursor-pointer ${disabled ? 'opacity-50' : ''}`}
-        >
-          <span
-            className={`absolute left-0 top-0 bottom-0 right-0 block rounded-full transition-all duration-300 ease-in-out ${
-              checked ? 'bg-blue-500' : 'bg-gray-200'
-            }`}
-          >
-            <span
-              className={`block bg-white rounded-full h-6 w-6 mt-1 shadow transform transition-transform duration-300 ease-in-out ${
-                checked ? 'translate-x-7 ml-1' : 'translate-x-1'
-              }`}
-            ></span>
-          </span>
-        </label>
+  const ArrayInfoRow = ({ label, value, isEditMode = false, name = "", onChange = null }) => (
+    <div className="py-3 border-b border-gray-100 last:border-b-0">
+      <div className="flex justify-between items-start">
+        <span className="text-gray-500 text-sm mt-2">{label}</span>
+        {isEditMode ? (
+          <textarea
+            name={name}
+            value={Array.isArray(value) ? value.join(', ') : ''}
+            onChange={(e) => onChange(name, e.target.value)}
+            placeholder="쉼표로 구분하여 입력하세요"
+            className="w-1/2 text-right focus:outline-none text-gray-900 font-medium rounded-lg px-3 py-2 border border-gray-200 focus:border-indigo-500 min-h-[80px] resize-none"
+          />
+        ) : (
+          <div className="text-right w-1/2">
+            {Array.isArray(value) && value.length > 0 ? (
+              <div className="flex flex-wrap gap-1 justify-end">
+                {value.map((item, index) => (
+                  <span key={index} className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="text-gray-900 font-medium">미설정</span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -170,17 +202,37 @@ const DashboardContent = ({ uid }) => {
     <button
       onClick={onClick}
       className={`py-4 px-6 border-b-2 font-medium transition-all duration-300 ${
-        active ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-400 hover:text-gray-900'
+        active ? 'border-indigo-500 text-indigo-500' : 'border-transparent text-gray-400 hover:text-gray-900'
       }`}
     >
       {children}
     </button>
   );
 
+  const getCompetencyLevelText = (level) => {
+    const levels = {
+      'Beginner': '초급',
+      'Intermediate': '중급',
+      'Advanced': '고급',
+      'Expert': '전문가'
+    };
+    return levels[level] || level;
+  };
+
+  const getEngagementText = (level) => {
+    const levels = {
+      'Low': '낮음',
+      'Medium': '보통',
+      'High': '높음'
+    };
+    return levels[level] || level;
+  };
+
   return (
-<div className="min-h-screen bg-transparent" // font-sans 클래스 제거
-      style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }} // 직접 폰트 지정
-    >      <div className="max-w-5xl mx-auto pt-8 pb-16 px-4">
+    <div className="min-h-screen bg-transparent"
+      style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}
+    >
+      <div className="max-w-5xl mx-auto pt-8 pb-16 px-4">
         {/* 헤더 프로필 섹션 */}
         <Card className="mb-6">
           <div className="flex flex-col items-center text-center py-3">
@@ -189,18 +241,20 @@ const DashboardContent = ({ uid }) => {
                 <img src={profile.photoURL} alt="프로필" className="h-full w-full object-cover" />
               ) : (
                 <span className="text-3xl font-bold text-gray-400">
-                  {profile.displayName?.charAt(0) || "U"}
+                  {profile.name?.charAt(0) || profile.name?.charAt(0) || "U"}
                 </span>
               )}
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">{profile.displayName || '사용자'}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              {profile.name || profile.name || '사용자'}
+            </h1>
             <p className="text-gray-500 mb-4">{profile.email}</p>
             
             {isEditing ? (
               <div className="flex space-x-3 mt-2">
                 <button
                   onClick={saveProfile}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium text-sm hover:bg-blue-600 transition-colors"
+                  className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium text-sm hover:bg-indigo-600 transition-colors"
                 >
                   저장하기
                 </button>
@@ -217,7 +271,7 @@ const DashboardContent = ({ uid }) => {
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium text-sm hover:bg-blue-600 transition-colors"
+                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium text-sm transition-colors"
               >
                 프로필 수정
               </button>
@@ -235,17 +289,12 @@ const DashboardContent = ({ uid }) => {
               기본 정보
             </TabButton>
             <TabButton 
-              active={activeTab === 'settings'} 
-              onClick={() => setActiveTab('settings')}
+              active={activeTab === 'skills'} 
+              onClick={() => setActiveTab('skills')}
             >
-              설정
+              스킬 & 관심사
             </TabButton>
-            <TabButton 
-              active={activeTab === 'activity'} 
-              onClick={() => setActiveTab('activity')}
-            >
-              활동 내역
-            </TabButton>
+            {/* 활동 내역 탭 삭제 */}
           </div>
         </div>
 
@@ -256,35 +305,43 @@ const DashboardContent = ({ uid }) => {
               <SectionTitle>기본 정보</SectionTitle>
               <InfoRow 
                 label="이름" 
-                value={profile.displayName} 
+                value={updatedProfile.name || updatedProfile.name} // 수정 중일때 updatedProfile 사용
                 isEditMode={isEditing}
-                name="displayName"
+                name="name" // Firestore 필드명에 맞게 (또는 name)
                 onChange={handleInputChange}
               />
               <InfoRow 
                 label="이메일" 
-                value={profile.email} 
+                value={profile.email} // 이메일은 일반적으로 수정 불가
               />
               <InfoRow 
                 label="직업" 
-                value={profile.job} 
+                value={updatedProfile.job} 
                 isEditMode={isEditing}
                 name="job"
                 onChange={handleInputChange}
               />
               <InfoRow 
                 label="소속" 
-                value={profile.affiliation} 
+                value={updatedProfile.affiliation} 
                 isEditMode={isEditing}
                 name="affiliation"
                 onChange={handleInputChange}
               />
               <InfoRow 
-                label="관심분야" 
-                value={profile.interests} 
+                label="목표" 
+                value={updatedProfile.goal} 
                 isEditMode={isEditing}
-                name="interests"
+                name="goal"
                 onChange={handleInputChange}
+              />
+              <InfoRow 
+                label="학력" 
+                value={updatedProfile.education_level} 
+                isEditMode={isEditing}
+                name="education_level"
+                onChange={handleInputChange}
+                inputType="education"
               />
             </Card>
 
@@ -296,11 +353,19 @@ const DashboardContent = ({ uid }) => {
               />
               <InfoRow 
                 label="가입일" 
-                value={profile.createdAt ? new Date(profile.createdAt.toDate()).toLocaleDateString() : '정보 없음'} 
+                value={profile.createdAt?.toDate ? new Date(profile.createdAt.toDate()).toLocaleDateString() : '정보 없음'} 
               />
               <InfoRow 
                 label="마지막 로그인" 
-                value={profile.lastLogin ? new Date(profile.lastLogin.toDate()).toLocaleString() : '정보 없음'} 
+                value={profile.lastLogin?.toDate ? new Date(profile.lastLogin.toDate()).toLocaleString() : '정보 없음'} 
+              />
+              <InfoRow 
+                label="참여도" 
+                value={isEditing ? updatedProfile.engagement_metrics : getEngagementText(profile.engagement_metrics)} 
+                isEditMode={isEditing}
+                name="engagement_metrics"
+                onChange={handleInputChange}
+                inputType="engagement"
               />
               <div className="py-3">
                 <div className="flex justify-between items-center">
@@ -314,65 +379,67 @@ const DashboardContent = ({ uid }) => {
           </div>
         )}
 
-        {activeTab === 'settings' && (
+        {activeTab === 'skills' && (
           <div className="space-y-6">
             <Card>
-              <SectionTitle>앱 설정</SectionTitle>
-            
+              <SectionTitle>스킬 & 관심사</SectionTitle>
               
-              <Toggle 
-                label="다크 모드" 
-                description="어두운 테마로 앱을 사용합니다" 
-                name="settings.dark_mode" 
-                checked={isEditing ? updatedProfile.settings?.dark_mode : profile.settings?.dark_mode} 
-                onChange={() => isEditing && handleToggleChange('settings.dark_mode')}
-                disabled={!isEditing}
+              <ArrayInfoRow 
+                label="관심분야" 
+                value={updatedProfile.interests} 
+                isEditMode={isEditing}
+                name="interests"
+                onChange={handleArrayInputChange}
               />
               
-              <Toggle 
-                label="알림 설정" 
-                description="앱 알림을 받습니다" 
-                name="settings.notifications" 
-                checked={isEditing ? updatedProfile.settings?.notifications : profile.settings?.notifications} 
-                onChange={() => isEditing && handleToggleChange('settings.notifications')}
-                disabled={!isEditing}
+              <ArrayInfoRow 
+                label="보유 스킬" 
+                value={updatedProfile.skills} 
+                isEditMode={isEditing}
+                name="skills"
+                onChange={handleArrayInputChange}
+              />
+              
+              <InfoRow 
+                label="실력 수준" 
+                value={isEditing ? updatedProfile.competency_level : getCompetencyLevelText(profile.competency_level)}
+                isEditMode={isEditing}
+                name="competency_level"
+                onChange={handleInputChange}
+                inputType="select"
               />
             </Card>
 
             <Card>
-              <SectionTitle>개인정보 설정</SectionTitle>
-              
-              <Toggle 
-                label="프로필 공개 설정" 
-                description="내 프로필을 다른 사용자에게 공개합니다" 
-                name="settings.public_profile" 
-                checked={isEditing ? updatedProfile.settings?.public_profile : profile.settings?.public_profile} 
-                onChange={() => isEditing && handleToggleChange('settings.public_profile')}
-                disabled={!isEditing}
-              />
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'activity' && (
-          <div className="space-y-6">
-            <Card>
-              <SectionTitle>활동 내역</SectionTitle>
-              
-              <div className="flex items-center justify-center py-12 text-center">
-                <div>
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
+              <SectionTitle>획득 뱃지</SectionTitle>
+              <div className="py-4">
+                {/* profile.acquired_badges 대신 acquiredBadges 상태 사용 */}
+                {Array.isArray(acquiredBadges) && acquiredBadges.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {acquiredBadges.map((badgeName, index) => (
+                      <div key={index} className="flex items-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center mr-3">
+                          <span className="text-yellow-800 text-sm font-bold">🏆</span>
+                        </div>
+                        {/* badge가 객체가 아닌 문자열(이름)이라고 가정 */}
+                        <span className="text-yellow-800 font-medium text-sm">{badgeName}</span>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-gray-900 font-medium mb-1">활동 내역이 없습니다</p>
-                  <p className="text-gray-500 text-sm">앱을 사용하면 여기에 활동이 표시됩니다.</p>
-                </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">🏆</span>
+                    </div>
+                    <p className="text-gray-500">아직 획득한 뱃지가 없습니다</p>
+                  </div>
+                )}
               </div>
             </Card>
           </div>
         )}
+
+        {/* 활동 내역 섹션 (activeTab === 'activity') 전체 삭제 */}
       </div>
     </div>
   );

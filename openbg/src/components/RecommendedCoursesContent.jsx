@@ -87,7 +87,7 @@ const RecommendedCoursesContent = ({ uid, idToken }) => {
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
             <p className="text-lg font-medium text-gray-900">추천 뱃지를 불러오는 중...</p>
             <p className="text-sm text-gray-500 mt-2">잠시만 기다려주세요</p>
           </div>
@@ -142,12 +142,12 @@ const RecommendedCoursesContent = ({ uid, idToken }) => {
           {recommendations.map((badge, idx) => (
             <div 
               key={idx} 
-              className="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-200 border border-gray-100 hover:border-blue-200"
+              className="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-200 border border-gray-100 hover:border-indigo-200"
             >
               {/* 뱃지 이미지/아이콘 */}
               <div className="mb-6">
                 {badge.image ? (
-                  <div className="h-48 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl overflow-hidden group-hover:scale-105 transition-transform duration-200">
+                  <div className="h-48 bg-gradient-to-br from-indigo-50 to-indigo-50 rounded-xl overflow-hidden group-hover:scale-105 transition-transform duration-200">
                     <img 
                       src={badge.image} 
                       alt={badge.name || '뱃지 이미지'} 
@@ -155,8 +155,8 @@ const RecommendedCoursesContent = ({ uid, idToken }) => {
                     />
                   </div>
                 ) : (
-                  <div className="h-48 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-                    <Award size={64} className="text-blue-500" />
+                  <div className="h-48 bg-gradient-to-br from-indigo-50 to-indigo-50 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                    <Award size={64} className="text-indigo-500" />
                   </div>
                 )}
               </div>
@@ -168,7 +168,7 @@ const RecommendedCoursesContent = ({ uid, idToken }) => {
                 </h3>
                 
                 {badge.issuer_name && (
-                  <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                  <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">
                     {badge.issuer_name}
                   </div>
                 )}
@@ -187,7 +187,7 @@ const RecommendedCoursesContent = ({ uid, idToken }) => {
                     href={badge.url_to_badge_details}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center w-full px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 group-hover:scale-105"
+                    className="inline-flex items-center justify-center w-full px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 group-hover:scale-105"
                   >
                     자세히 보기
                     <ExternalLink className="ml-2 h-4 w-4" />
@@ -200,7 +200,7 @@ const RecommendedCoursesContent = ({ uid, idToken }) => {
 
         {/* 푸터 정보 */}
         <div className="mt-16 text-center">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-medium">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 text-sm font-medium">
             <Award className="h-4 w-4 mr-2" />
             총 {recommendations.length}개의 뱃지를 추천해드립니다
           </div>
