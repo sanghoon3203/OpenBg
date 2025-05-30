@@ -16,23 +16,21 @@ const BadgeCard = ({ title, issuer, date, skills = [], imageUrl, isEmptyCard = f
   }
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 h-40 w-full relative group flex items-center"> {/* 카드 자체에 relative 추가 */}
-      {/* 삭제 버튼: 카드 자체의 우측 상단 */}
+    <div className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 h-40 w-full relative group flex items-center">
       {onDelete && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
           }}
-          className="absolute top-2.5 right-2.5 bg-red-500 hover:bg-red-700 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100 z-20" // z-index 추가하여 다른 요소 위에 오도록 함
+          className="absolute top-2.5 right-2.5 bg-red-500 hover:bg-red-700 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100 z-20"
           title="삭제"
         >
           ✕
         </button>
       )}
 
-      {/* 뱃지 이미지/아이콘 영역 */}
-      <div className="w-24 h-24 rounded-lg flex items-center justify-center shadow-sm mr-4 flex-shrink-0"> {/* 기존 스타일 유지 */}
+      <div className="w-24 h-24 rounded-lg flex items-center justify-center shadow-sm mr-4 flex-shrink-0">
         {imageUrl ? (
           <img src={imageUrl} alt={title || "뱃지 이미지"} className="w-full h-full object-contain rounded-lg" />
         ) : (
@@ -46,9 +44,14 @@ const BadgeCard = ({ title, issuer, date, skills = [], imageUrl, isEmptyCard = f
       </div>
 
       {/* 뱃지 정보 영역 */}
-      <div className="flex-grow flex flex-col justify-center">
-        <h3 className="text-xl font-bold text-gray-800 truncate mb-1">{title || "정보처리기사"}</h3>
-        <p className="text-xs text-gray-500 mb-2">주관기관 : {issuer || "한국산업인력공단"}</p>
+      <div className="flex-grow flex flex-col justify-center overflow-hidden"> {/* overflow-hidden 추가 */}
+        <h3 
+          className="text-lg font-bold text-gray-800 mb-1 break-words whitespace-normal leading-tight" // truncate 제거, break-words, whitespace-normal, leading-tight 추가
+          style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', textOverflow: 'ellipsis' }} // 2줄 말줄임표 스타일
+        >
+          {title || "정보처리기사 정보처리기사 정보처리기사"} {/* 긴 텍스트 예시 */}
+        </h3>
+        <p className="text-xs text-gray-500 mb-2 truncate">{issuer || "한국산업인력공단"}</p> {/* 발행기관은 한 줄 유지 */}
         <p className="text-xs text-gray-400 flex items-center mb-1">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
