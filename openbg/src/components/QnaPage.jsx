@@ -143,7 +143,7 @@ const QnAPage = ({ idToken, user }) => {
       <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           <NavLink to="/" className="flex items-center">
-          <img src="src\assets\main4.svg" alt="OPBG 로고" className="w-[150px] h-auto rounded-lg" // 높이를 10 (40px)로 설정, 너비는 자동(auto)으로 비율 유지
+          <img src="/images/main4.svg" alt="OPBG 로고" className="w-[150px] h-auto rounded-lg" // 높이를 10 (40px)로 설정, 너비는 자동(auto)으로 비율 유지
                                   
 />          </NavLink>
 
@@ -152,7 +152,7 @@ const QnAPage = ({ idToken, user }) => {
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>마이프로필</NavLink>
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>나의 뱃지지갑</NavLink>
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>커뮤니티</NavLink>
-            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>AI추천강좌</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>뱃지 추천</NavLink>
             <NavLink to="/qna" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>도움말</NavLink>
           </nav>
 

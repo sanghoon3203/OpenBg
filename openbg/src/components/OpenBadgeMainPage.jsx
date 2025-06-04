@@ -45,7 +45,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
       id: 1,
       title: '웹 개발 기초',
       category: 'tech',
-      image: 'src/assets/web.svg',
+      image: '/images/web.svg',
       issuer: '테크 아카데미',
       difficulty: '초급',
       students: 1204
@@ -54,7 +54,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
       id: 2,
       title: 'UI/UX 디자인 마스터',
       category: 'design',
-      image: 'src/assets/ui.svg',
+      image: '/images/ui.svg',
       issuer: '디자인 스쿨',
       difficulty: '중급',
       students: 867
@@ -63,7 +63,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
       id: 3,
       title: '비즈니스 영어',
       category: 'language',
-      image: 'src/assets/eng.svg',
+      image: '/images/eng.svg',
       issuer: '글로벌 에듀',
       difficulty: '중급',
       students: 2431
@@ -72,7 +72,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
       id: 4,
       title: '프로젝트 관리',
       category: 'business',
-      image: 'src/assets/product.svg',
+      image: '/images/product.svg',
       issuer: '비즈니스 허브',
       difficulty: '고급',
       students: 1056
@@ -118,7 +118,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
       <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           <NavLink to="/" className="flex items-center">
-          <img src="src\assets\main4.svg" alt="OPBG 로고" className="w-[150px] h-auto rounded-lg" // 높이를 10 (40px)로 설정, 너비는 자동(auto)으로 비율 유지
+          <img src="/images/main4.svg" alt="OPBG 로고" className="w-[150px] h-auto rounded-lg" // 높이를 10 (40px)로 설정, 너비는 자동(auto)으로 비율 유지
                                   
 />          </NavLink>
 
@@ -127,7 +127,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>마이프로필</NavLink>
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>나의 뱃지지갑</NavLink>
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>커뮤니티</NavLink>
-            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>AI추천강좌</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>뱃지 추천</NavLink>
             <NavLink to="/qna" className={({ isActive }) => isActive ? 'text-purple-600' : 'text-gray-700 hover:text-purple-600'}>도움말</NavLink>
           </nav>
 
@@ -179,7 +179,7 @@ const OpenBadgeMainPage = ({ idToken, setIdToken, user }) => {
             </div>
           <div className="relative flex items-center justify-center w-full md:w-auto h-auto md:min-h-0"> {/* 부모 div의 크기 조절 */}
             <motion.img
-              src="src\assets\main3.png"
+              src="/images/main3.png"
               alt="히어로 뱃지 이미지"
               className="w-full max-w-md md:max-w-lg lg:max-w-xxl object-contain rounded-lg" // 그림자 제거, 크기 반응형 조절
                                                                                               // 필요시 shadow-xl 등 추가
