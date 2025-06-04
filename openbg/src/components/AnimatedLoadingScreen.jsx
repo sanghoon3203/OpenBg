@@ -23,7 +23,7 @@ const AnimatedLoadingScreen = ({ currentPhase, customMessage }) => {
     >
       <div className="mb-8">
         {/* 기존 고양이 GIF 또는 다른 테마 애니메이션 */}
-        <img src="src/assets/codeing_cat.gif" alt="AI 분석 중..." className="w-40 h-40" /> 
+        <img src="/images/codeing_cat.gif" alt="AI 분석 중..." className="w-40 h-40" /> 
       </div>
       <h2 className="text-2xl font-bold text-indigo-700 mb-6 animate-pulse">{message}</h2>
       <div className="w-full max-w-lg space-y-3">
