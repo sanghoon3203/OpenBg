@@ -2,83 +2,68 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
-import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { auth, db } from '../firebase'; // auth와 db를 한 줄로 가져옴
-
-// Firestore에서 마지막 'user_id'를 찾아 다음 코드를 생성하는 비동기 함수
-// ✅ 중요: 운영 환경에서는 여러 사용자가 동시에 가입할 때 고유성 충돌(race condition)을 방지하기 위해
-//    Firestore 트랜잭션 또는 Cloud Functions를 사용하여 이 카운터를 안전하게 관리해야 합니다.
-const generateUniqueUserCode = async (database) => {
-  let latestNumber = 0;
-  // 'users' 컬렉션에서 'user_id' 필드를 기준으로 정렬하여 가장 큰 번호 찾기
-  // 'U'로 시작하는 user_id만 필터링합니다.
-  const q = query(
-    collection(database, "users"),
-    where("user_id", ">=", "U"),
-    where("user_id", "<", "V") // 'U'로 시작하는 모든 문자열을 포함하기 위함 (U...부터 U 다음에 오는 문자 전까지)
-  );
-  const querySnapshot = await getDocs(q);
-
-  querySnapshot.forEach((document) => {
-    const userId = document.data().user_id;
-    if (userId && userId.startsWith('U')) {
-      const num = parseInt(userId.substring(1)); // 'U' 다음의 숫자 부분 추출
-      if (!isNaN(num) && num > latestNumber) {
-        latestNumber = num;
-      }
-    }
-  });
-  return `U${String(latestNumber + 1).padStart(6, '0')}`; // 예: U000001, U000002... 형식으로 반환
-};
-
+import { auth } from '../firebase';
+import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 const RegisterPage = ({ onAuthSuccess }) => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
+    // 기본 계정 정보
     email: '',
     password: '',
-    displayName: '', // Firebase `updateProfile`에 사용될 이름
+    display_name: '',
+    
+    // 프로필 정보
     job: '',
     affiliation: '',
-    interests: [], // 기존 관심 분야
-
-    // ✅ JSON 형식에 맞게 추가된 필드들 (초기값 설정)
     goal: '',
-    skills: [], // 사용자가 선택한 interests를 여기에 매핑하거나 별도로 입력받을 수 있습니다.
-    competency_level: 'Beginner', // 기본값 설정 (UI에서 선택하도록 할 수 있음)
-    acquired_badges: [], // 초기 가입 시 빈 배열
-    learning_history: [], // 초기 가입 시 빈 배열 (나중에 프로필 편집에서 추가)
-    employment_history: [], // 초기 가입 시 빈 배열 (나중에 프로필 편집에서 추가)
-    education_level: '', // UI에서 입력받거나 기본값 설정 가능
-    engagement_metrics: 'Low', // 기본값 설정 (사용자 활동에 따라 변화)
-    recommendation_history: [] // 초기 가입 시 빈 배열
+    education_level: '',
+    
+    // 스킬 및 관심사
+    interests: [],
+    skills: [],
+    competency_level: 'Beginner',
+    
+    // 시스템 관련
+    acquired_badges: [],
+    learning_history: [],
+    employment_history: [],
+    engagement_metrics: 'Low',
+    recommendation_history: []
   });
+  
+  const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const INTEREST_OPTIONS = ['IT,개발', '디자인', '외국어', '요리', '교육', '과학', '음악'];
+  // 옵션 데이터
+  const interestOptions = ['IT,개발', '디자인', '외국어', '요리', '교육', '과학', '음악', '마케팅', '경영', '금융'];
+  const skillOptions = ['JavaScript', 'Python', 'React', 'Node.js', 'UI/UX', '프로젝트 관리', '데이터 분석', '영어', '중국어', '일본어'];
+  const competencyLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+  const educationLevels = ['고등학교 졸업', '전문대 졸업', '대학교 졸업', '대학원 재학', '대학원 졸업', '기타'];
+  const engagementLevels = ['Low', 'Medium', 'High'];
 
-  // 입력 필드 변경 핸들러
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prevForm => ({ ...prevForm, [name]: value }));
-  };
+  // 고유 사용자 코드 생성 함수
+  const generateUniqueUserCode = async (db) => {
+    let latestNumber = 0;
+    const q = query(
+      collection(db, "users"),
+      where("user_id", ">=", "U"),
+      where("user_id", "<", "V")
+    );
+    const querySnapshot = await getDocs(q);
 
-  // 관심 분야(칩) 선택/해제 핸들러
-  const handleInterestToggle = (interest) => {
-    setForm(prevForm => {
-      const isSelected = prevForm.interests.includes(interest);
-      const newInterests = isSelected
-        ? prevForm.interests.filter(i => i !== interest)
-        : [...prevForm.interests, interest];
-      
-      return {
-        ...prevForm,
-        interests: newInterests,
-        // ✅ interests를 skills로 매핑 (필요에 따라 별도의 skills 입력 필드 추가 고려)
-        skills: newInterests 
-      };
+    querySnapshot.forEach((doc) => {
+      const userId = doc.data().user_id;
+      if (userId && userId.startsWith('U')) {
+        const num = parseInt(userId.substring(1));
+        if (!isNaN(num) && num > latestNumber) {
+          latestNumber = num;
+        }
+      }
     });
+    return `U${String(latestNumber + 1).padStart(6, '0')}`;
   };
 
   const handleRegister = async (e) => {
@@ -87,244 +72,390 @@ const RegisterPage = ({ onAuthSuccess }) => {
     setError(null);
 
     try {
-      // 1. Firebase 인증: 이메일/비밀번호로 사용자 생성
       const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
       const user = userCredential.user;
 
-      // 2. 사용자 프로필 업데이트 (Firebase Auth의 displayName 필드)
-      await updateProfile(user, { displayName: form.displayName });
+      // Firebase Authentication 프로필 업데이트
+      await updateProfile(user, { displayName: form.display_name });
 
-      // ✅ 3. 고유한 user_id 생성
-      const uniqueUserId = await generateUniqueUserCode(db); 
+      // 고유한 user_id 생성
+      const uniqueUserId = await generateUniqueUserCode(db);
 
-      // ✅ 4. Firestore에 저장할 사용자 데이터 객체 구성
+      // Firestore 문서에 저장할 데이터 구성
       const userDataToStore = {
-        user_id: uniqueUserId, // ✅ 생성된 고유 ID 사용
-        name: form.displayName, 
+        user_id: uniqueUserId,
+        name: form.display_name,
         email: form.email,
-        goal: form.goal,
-        skills: form.skills, // interests에서 매핑된 값
-        competency_level: form.competency_level,
-        acquired_badges: form.acquired_badges,
-        learning_history: form.learning_history,
-        employment_history: form.employment_history,
-        education_level: form.education_level,
-        engagement_metrics: form.engagement_metrics,
-        recommendation_history: form.recommendation_history,
-
-        // 기존 필드들
+        
+        // 프로필 정보
         job: form.job,
         affiliation: form.affiliation,
-        createdAt: new Date(), // 가입 시간
+        goal: form.goal,
+        education_level: form.education_level,
+        
+        // 스킬 및 관심사 (별도 필드로 저장)
+        interests: form.interests, // 관심 분야
+        skills: form.skills, // 보유 스킬
+        competency_level: form.competency_level,
+        
+        // 시스템 필드들 (초기값)
+        acquired_badges: [],
+        learning_history: [],
+        employment_history: form.job && form.affiliation ? [{
+          company: form.affiliation,
+          position: form.job,
+          start_date: new Date().toISOString(),
+          is_current: true
+        }] : [],
+        engagement_metrics: form.engagement_metrics,
+        recommendation_history: [],
+        
+        // 메타데이터
+        createdAt: new Date(),
         settings: {
           language: "ko",
-          darkMode: false // camelCase로 변경
+          darkMode: false
         }
       };
 
-      // ✅ 5. Firestore에 문서 저장 (Firebase Auth UID를 문서 ID로 사용)
+      // Firestore에 문서 저장
       await setDoc(doc(db, "users", user.uid), userDataToStore);
 
-      // 6. ID 토큰 추출 및 상위 컴포넌트로 전달 (인증 상태 관리)
+      // 인증 성공 처리
       const idToken = await user.getIdToken();
-      onAuthSuccess(idToken); 
-
-      // 7. 성공 시 홈으로 이동
+      onAuthSuccess(idToken);
       navigate('/');
     } catch (err) {
-      // 에러 처리
       setError(err.message);
     } finally {
-      // 로딩 상태 해제 (성공/실패 모두)
       setLoading(false);
     }
   };
 
+  const nextStep = () => {
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const renderStepIndicator = () => (
+    <div className="flex justify-center mb-8">
+      {[1, 2, 3].map((step) => (
+        <div key={step} className="flex items-center">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            step <= currentStep ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'
+          }`}>
+            {step}
+          </div>
+          {step < 3 && (
+            <div className={`w-12 h-0.5 mx-2 ${
+              step < currentStep ? 'bg-purple-600' : 'bg-gray-200'
+            }`} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderStep1 = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h3 className="text-lg font-medium text-gray-800">기본 정보</h3>
+        <p className="text-sm text-gray-600 mt-1">계정 생성을 위한 기본 정보를 입력해주세요</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+        <input
+          type="email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          placeholder="your@email.com"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+        <input
+          type="password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
+        <input
+          type="text"
+          value={form.display_name}
+          onChange={(e) => setForm({ ...form, display_name: e.target.value })}
+          className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          placeholder="홍길동"
+          required
+        />
+      </div>
+
+      <div className="flex gap-4 pt-4">
+        <button
+          type="button"
+          onClick={nextStep}
+          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-xl transition-colors"
+        >
+          다음 단계
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderStep2 = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h3 className="text-lg font-medium text-gray-800">프로필 정보</h3>
+        <p className="text-sm text-gray-600 mt-1">나에 대한 정보를 입력해주세요</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">직업</label>
+        <input
+          type="text"
+          value={form.job}
+          onChange={(e) => setForm({ ...form, job: e.target.value })}
+          className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          placeholder="개발자"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">소속</label>
+        <input
+          type="text"
+          value={form.affiliation}
+          onChange={(e) => setForm({ ...form, affiliation: e.target.value })}
+          className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          placeholder="회사/학교"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">학력</label>
+        <select
+          value={form.education_level}
+          onChange={(e) => setForm({ ...form, education_level: e.target.value })}
+          className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+        >
+          <option value="">선택해주세요</option>
+          {educationLevels.map((level) => (
+            <option key={level} value={level}>{level}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">학습 목표</label>
+        <textarea
+          value={form.goal}
+          onChange={(e) => setForm({ ...form, goal: e.target.value })}
+          className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          placeholder="어떤 것을 배우고 싶으신가요?"
+          rows="3"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">역량 수준</label>
+        <select
+          value={form.competency_level}
+          onChange={(e) => setForm({ ...form, competency_level: e.target.value })}
+          className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+        >
+          {competencyLevels.map((level) => (
+            <option key={level} value={level}>
+              {level === 'Beginner' && '초급'}
+              {level === 'Intermediate' && '중급'}
+              {level === 'Advanced' && '고급'}
+              {level === 'Expert' && '전문가'}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex gap-4 pt-4">
+        <button
+          type="button"
+          onClick={prevStep}
+          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-4 rounded-xl transition-colors"
+        >
+          이전
+        </button>
+        <button
+          type="button"
+          onClick={nextStep}
+          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-xl transition-colors"
+        >
+          다음 단계
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderStep3 = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h3 className="text-lg font-medium text-gray-800">관심사 & 스킬</h3>
+        <p className="text-sm text-gray-600 mt-1">관심 분야와 보유 스킬을 선택해주세요</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">관심 분야</label>
+        <div className="flex flex-wrap gap-2">
+          {interestOptions.map((interest) => (
+            <button
+              key={interest}
+              type="button"
+              onClick={() => {
+                const isSelected = form.interests.includes(interest);
+                setForm(prevForm => ({
+                  ...prevForm,
+                  interests: isSelected
+                    ? prevForm.interests.filter(i => i !== interest)
+                    : [...prevForm.interests, interest]
+                }));
+              }}
+              className={`px-4 py-2 text-sm rounded-full transition-all ${
+                form.interests.includes(interest)
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {interest}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">보유 스킬</label>
+        <div className="flex flex-wrap gap-2">
+          {skillOptions.map((skill) => (
+            <button
+              key={skill}
+              type="button"
+              onClick={() => {
+                const isSelected = form.skills.includes(skill);
+                setForm(prevForm => ({
+                  ...prevForm,
+                  skills: isSelected
+                    ? prevForm.skills.filter(s => s !== skill)
+                    : [...prevForm.skills, skill]
+                }));
+              }}
+              className={`px-4 py-2 text-sm rounded-full transition-all ${
+                form.skills.includes(skill)
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {skill}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">참여도 설정</label>
+        <select
+          value={form.engagement_metrics}
+          onChange={(e) => setForm({ ...form, engagement_metrics: e.target.value })}
+          className="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+        >
+          {engagementLevels.map((level) => (
+            <option key={level} value={level}>
+              {level === 'Low' && '낮음'}
+              {level === 'Medium' && '보통'}
+              {level === 'High' && '높음'}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex gap-4 pt-4">
+        <button
+          type="button"
+          onClick={prevStep}
+          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-4 rounded-xl transition-colors"
+        >
+          이전
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              가입 중...
+            </span>
+          ) : (
+            '회원가입 완료'
+          )}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div
-      className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+    <div 
+      className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8" 
       style={{ fontFamily: '"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}
     >
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-md mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-extrabold text-purple-600">OPEN BG</h1>
-          <p className="mt-2 text-lg text-gray-600">새로운 계정을 만들어 시작하세요</p>
+          <h1 className="text-3xl font-extrabold text-purple-600">OPEN BG</h1>
+          <p className="mt-2 text-gray-600">새로운 계정을 만들어 시작하세요</p>
         </div>
 
+        {renderStepIndicator()}
+
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.4 }}
-          className="bg-white py-8 px-6 shadow-xl rounded-2xl"
+          key={currentStep}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white py-8 px-6 shadow-sm rounded-2xl"
         >
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl">
+            <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-xl">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-6">
-            {/* 이메일 필드 */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-              <input
-                id="email"
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-
-            {/* 비밀번호 필드 */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            {/* 이름 필드 */}
-            <div>
-              <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">이름</label>
-              <input
-                id="displayName"
-                type="text"
-                name="displayName"
-                value={form.displayName}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none"
-                placeholder="홍길동"
-                required
-              />
-            </div>
-
-            {/* 직업 필드 */}
-            <div>
-              <label htmlFor="job" className="block text-sm font-medium text-gray-700 mb-1">직업</label>
-              <input
-                id="job"
-                type="text"
-                name="job"
-                value={form.job}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none"
-                placeholder="개발자"
-                required
-              />
-            </div>
-
-            {/* 소속 필드 */}
-            <div>
-              <label htmlFor="affiliation" className="block text-sm font-medium text-gray-700 mb-1">소속</label>
-              <input
-                id="affiliation"
-                type="text"
-                name="affiliation"
-                value={form.affiliation}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none"
-                placeholder="회사/학교"
-                required
-              />
-            </div>
-
-            {/* ✅ 목표 필드 추가 (새로운 필드) */}
-            <div>
-              <label htmlFor="goal" className="block text-sm font-medium text-gray-700 mb-1">목표</label>
-              <input
-                id="goal"
-                type="text"
-                name="goal"
-                value={form.goal}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none"
-                placeholder="AI 전문가 되기"
-                required
-              />
-            </div>
-
-            {/* ✅ 학력 필드 추가 (새로운 필드) */}
-            <div>
-              <label htmlFor="education_level" className="block text-sm font-medium text-gray-700 mb-1">학력</label>
-              <input
-                id="education_level"
-                type="text"
-                name="education_level"
-                value={form.education_level}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none"
-                placeholder="학사, 석사, 박사 등"
-                required
-              />
-            </div>
-
-            {/* 관심 분야 (skills로 매핑) 섹션 - Toss-style 칩 선택 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">관심 분야 (기술)</label>
-              <div className="flex flex-wrap gap-2">
-                {INTEREST_OPTIONS.map((interest) => (
-                  <button
-                    key={interest}
-                    type="button"
-                    onClick={() => handleInterestToggle(interest)}
-                    className={`px-4 py-2 text-sm rounded-full transition-all duration-200 ${
-                      form.interests.includes(interest)
-                        ? 'bg-purple-600 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {interest}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            {/* 가입 버튼 */}
-            <div className="pt-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    가입 중...
-                  </span>
-                ) : (
-                  '회원가입 완료하기'
-                )}
-              </button>
-            </div>
+          <form onSubmit={handleRegister}>
+            {currentStep === 1 && renderStep1()}
+            {currentStep === 2 && renderStep2()}
+            {currentStep === 3 && renderStep3()}
           </form>
-
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
-              이미 계정이 있으신가요?{' '}
-              <button
-                onClick={() => navigate('/login')}
-                className="text-purple-600 font-medium hover:text-purple-700 transition-colors duration-200"
-              >
-                로그인하기
-              </button>
-            </p>
-          </div>
         </motion.div>
+
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-600">
+            이미 계정이 있으신가요?{' '}
+            <button onClick={() => navigate('/login')} className="text-purple-600 font-medium hover:text-purple-700">
+              로그인하기
+            </button>
+          </p>
+        </div>
 
         <p className="text-center text-xs text-gray-500 mt-8">
           가입 시 서비스 이용약관 및 개인정보처리방침에 동의하게 됩니다.
