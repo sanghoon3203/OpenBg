@@ -52,7 +52,8 @@ const RecommendedCoursesContent = ({ uid, idToken }) => {
         const apiData = res.data; 
 
         setLoadingPhase('GENERATING_RECOMMENDATIONS');
-        const recs = apiData.recommendations || []; 
+        const recs = apiData.badge_recommendations || [];  
+
         
         if (Array.isArray(recs) && recs.length > 0) {
           const formattedRecs = recs.map(badge => ({

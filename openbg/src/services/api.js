@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://127.0.0.1:8000'; // 실제 API 도메인으로 교체
+const API_BASE = 'https://f539-121-165-128-178.ngrok-free.app'; // 실제 API 도메인으로 교체
 
 // Auth & User
 export const signup = (data) => axios.post(`${API_BASE}/auth/signup`, data);
