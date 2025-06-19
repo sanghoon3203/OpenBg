@@ -39,7 +39,7 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
     * **획득 뱃지 현황:** 사용자가 획득한 뱃지 목록을 보여줍니다.
 
 <div align="center">
-    <img src="/images/스크린샷 2025-06-19 오후 5.50.45.png" alt="[기능 1 설명]" width="700"/>
+    <img src="/images/mainpage_image.png" alt="[기능 1 설명]" width="700"/>
     <br/>
     <p><em>[개인별 지갑 모습]</em></p>
     <br/>
