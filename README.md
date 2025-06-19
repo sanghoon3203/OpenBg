@@ -7,7 +7,6 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sanghoon3203/OpenBg/blob/main/LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/sanghoon3203/OpenBg?style=social)](https://github.com/sanghoon3203/OpenBg/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/sanghoon3203/OpenBg?style=social)](https://github.com/sanghoon3203/OpenBg/network/members)
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fsanghoon3203%2FOpenBg&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
 
 **프로젝트 기간:** [25.04.01] ~ [25.06.16)]
