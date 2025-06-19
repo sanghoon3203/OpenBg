@@ -2,7 +2,7 @@
 
 # ✨ [OPBG]
 
-## [OPBG는 교내 캡스톤 프로젝트에서 진행한 오픈뱃지를 이용한 학업추천 웹페이지 입니다.]
+## [OPBG는 캡스톤 프로젝트에서 진행한 오픈뱃지를 이용한 학업추천 웹페이지 입니다.]
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sanghoon3203/OpenBg/blob/main/LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/sanghoon3203/OpenBg?style=social)](https://github.com/sanghoon3203/OpenBg/stargazers)
@@ -39,9 +39,13 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
     * **획득 뱃지 현황:** 사용자가 획득한 뱃지 목록을 보여줍니다.
 
 <div align="center">
-    <img src="[기능 1 스크린샷 또는 GIF URL]" alt="[기능 1 설명]" width="700"/>
+    <img src="/images/스크린샷 2025-06-19 오후 5.50.45.png" alt="[기능 1 설명]" width="700"/>
     <br/>
-    <p><em>[기능 1에 대한 간단한 캡션]</em></p>
+    <p><em>[개인별 지갑 모습]</em></p>
+    <br/>
+    <img src="/images/스크린샷 2025-06-19 오후 5.51.11.png" alt="[기능 1 설명]" width="700"/>
+    <br/>
+    <p><em>[개인별 지갑 모습]</em></p>
 </div>
 
 ### 2. AI 기반 맞춤형 학습 경로 추천
