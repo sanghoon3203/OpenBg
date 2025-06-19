@@ -4,10 +4,10 @@
 
 ## [OPBG는 교내 캡스톤 프로젝트에서 진행한 오픈뱃지를 이용한 학업추천 웹페이지 입니다.]
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/[GitHub 사용자명]/[프로젝트 레포지토리명]/blob/main/LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/[GitHub 사용자명]/[프로젝트 레포지토리명]?style=social)](https://github.com/[GitHub 사용자명]/[프로젝트 레포지토리명]/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/[GitHub 사용자명]/[프로젝트 레포지토리명]?style=social)](https://github.com/[GitHub 사용자명]/[프로젝트 레포지토리명]/network/members)
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2F[GitHub 사용자명]%2F[프로젝트 레포지토리명]&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sanghoon3203/OpenBg/blob/main/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/sanghoon3203/OpenBg?style=social)](https://github.com/sanghoon3203/OpenBg/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/sanghoon3203/OpenBg?style=social)](https://github.com/sanghoon3203/OpenBg/network/members)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fsanghoon3203%2FOpenBg&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
 [배포 링크]([배포된 서비스 URL]) | [기술 블로그 (선택 사항)]([기술 블로그 포스팅 URL])
 
@@ -30,10 +30,14 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
 
 ## 🌟 주요 기능
 
-[프로젝트의 핵심 기능을 목록 형태로 설명하고, 가능하다면 해당 기능의 스크린샷이나 GIF를 함께 첨부하여 시각적으로 보여줍니다.]
-
-### 1. [기능 1 제목]
-* [기능 1에 대한 상세 설명]
+### 1. 디지털 배지 관리 및 증명
+* 해당 기능은 기존의 사이트의 지갑 기능이며, firebase의 store기능을 이용하여 각 회원별 컬렉션 문서함에 저장합니다.
+* 해당 지갑은 1EdTech 오픈배지 표준 준수하여 해당 json 형식이 아닐 경우에는 등록불가하도록 막고 있으며, 사용자들은 해당 기능을 json파일이나 json형식의 링크로 업로드하여 지갑에 등록가능합니다.
+* **배지 포트폴리오:** 획득한 배지들을 한눈에 확인하고 관리할 수 있는 개인 포트폴리오를 제공합니다.
+    * **뱃지 추가:** 뱃지 JSON URL 또는 JSON 파일을 통해 새로운 뱃지를 추가할 수 있습니다.
+    * **뱃지 삭제:** 등록된 뱃지를 삭제할 수 있습니다.
+* **개인 프로필:** 사용자 계정 정보를 기반으로 이름, 이메일, 직업, 소속, 학습 목표, 학력, 역량 수준, 관심 분야, 보유 스킬 등의 프로필 정보를 등록하고 수정할 수 있습니다.
+    * **획득 뱃지 현황:** 사용자가 획득한 뱃지 목록을 보여줍니다.
 
 <div align="center">
     <img src="[기능 1 스크린샷 또는 GIF URL]" alt="[기능 1 설명]" width="700"/>
@@ -41,8 +45,10 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
     <p><em>[기능 1에 대한 간단한 캡션]</em></p>
 </div>
 
-### 2. [기능 2 제목]
-* [기능 2에 대한 상세 설명]
+### 2. AI 기반 맞춤형 학습 경로 추천
+* **RAG(Retrieval Augmented Generation) 기반 AI 추천 시스템:** Pinecone과 연동된 벡터 데이터베이스의 학습 데이터를 Claude AI와 결합하여 사용자에게 최적화된 오픈배지 및 학습 경로를 추천합니다.
+* **역량 분석 및 성장 제안:** 취득한 배지를 기반으로 사용자의 역량을 분석하고, 다음 단계 성장을 위한 맞춤형 학습 경로를 제안합니다.
+* **추천 뱃지 표시:** 사용자에게 추천되는 뱃지 목록을 보여주며, 각 뱃지의 유사도 점수, 발행 기관, 설명 등의 상세 정보를 확인할 수 있습니다.
 
 <div align="center">
     <img src="[기능 2 스크린샷 또는 GIF URL]" alt="[기능 2 설명]" width="700"/>
@@ -50,11 +56,26 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
     <p><em>[기능 2에 대한 간단한 캡션]</em></p>
 </div>
 
+### 3. 커뮤니티 활동 및 소통
+* **게시판 기능:** 구인구직, 뱃지 인증, 챌린지, 뱃지 리뷰 등 다양한 카테고리의 게시판을 통해 다른 사용자들과 소통하고 정보를 공유할 수 있습니다.
+    * **글 작성:** 사용자는 제목, 내용, 필수 뱃지, 카테고리를 선택하여 새로운 게시글을 작성할 수 있습니다.
+    * **댓글 기능:** 각 게시글에 댓글을 작성하고 확인할 수 있습니다.
+    * **게시글 삭제:** 작성자가 자신의 게시글을 삭제할 수 있습니다.
+* **보유 뱃지 태그:** 게시글 작성 시 사용자의 보유 뱃지를 자동으로 태그하여 다른 사용자들에게 자신의 역량을 효과적으로 어필할 수 있습니다.
+* **구인구직 연계:** 사용자가 자신의 역량을 효과적으로 어필하고, 실질적인 경력 개발로 이어질 수 있도록 구인구직 게시판과의 연계를 지원합니다.
+
+### 4. 사용자 인증 및 관리
+* **회원가입:** 이메일과 비밀번호를 사용하여 계정을 생성할 수 있으며, 회원가입 시 직업, 소속, 학력, 학습 목표, 관심사, 스킬 등의 프로필 정보를 입력합니다.
+* **로그인/로그아웃:** Firebase Auth를 통해 안전한 로그인 및 로그아웃 기능을 제공합니다.
+* **사용자 UID 기반 데이터 관리:** 로그인한 사용자(UID)를 기반으로 개인 프로필, 뱃지 지갑, 커뮤니티 활동 등 모든 데이터를 Firestore에 저장하고 관리합니다.
+
+### 5. 정보 및 지원
+* **자주 묻는 질문(Q&A):** OpenBadge에 대한 일반, 배지, 계정, 발행자, 기술 관련 자주 묻는 질문들을 제공합니다.
+* **문의하기:** 사용자가 추가적인 질문이나 도움이 필요한 경우 문의할 수 있는 채널을 제공합니다.
+
 <br/>
 
 ## 🛠️ 기술 스택
-
-[프로젝트에 사용된 기술 스택을 분류하여 아이콘과 함께 표시합니다. 아이콘은 shields.io나 devicons에서 찾아 사용할 수 있습니다.]
 
 ### Front-end
 <p>
@@ -89,8 +110,6 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
 
 ## 🎯 기술적 이슈 & 해결 과정
 
-[프로젝트를 진행하면서 겪었던 기술적인 어려움과 이를 어떻게 해결했는지 구체적으로 작성합니다. 이 부분은 기술 역량을 어필하는 데 매우 중요합니다.]
-
 ### 1. [이슈 1 제목]
 * **문제 상황:** [문제에 대한 상세 설명]
 * **고민:** [해결을 위해 고려했던 여러 가지 방안]
@@ -104,33 +123,3 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
 * **해결 방안:** [최종적으로 선택한 해결책과 그 이유]
 * **배운 점:** [이슈 해결을 통해 얻은 교훈이나 지식]
 * (관련 블로그나 문서 링크가 있다면 추가)
-
-<br/>
-
-## 🧑‍🤝‍🧑 팀원 소개
-
-| [역할1 (예: Backend)] | [역할2 (예: Frontend)] | [역할3 (예: Designer)] |
-| :------------------: | :------------------: | :--------------------: |
-| ![](https://github.com/[GitHub 사용자명].png?size=120) | ![](https://github.com/[GitHub 사용자명].png?size=120) | ![](https://github.com/[GitHub 사용자명].png?size=120) |
-| [이름](https://github.com/[GitHub 사용자명]) | [이름](https://github.com/[GitHub 사용자명]) | [이름](https://github.com/[GitHub 사용자명]) |
-
-<br/>
-
-## 🤝 기여 방법 (선택 사항)
-
-[다른 사람이 프로젝트에 기여할 수 있도록 가이드를 제공합니다. 오픈소스 프로젝트인 경우 유용합니다.]
-
-1.  이 저장소를 Fork합니다.
-2.  `git clone` 명령어로 로컬에 복제합니다.
-3.  새로운 브랜치를 생성합니다 (`git checkout -b feature/your-feature-name`).
-4.  변경 사항을 커밋합니다 (`git commit -m 'Add new feature'`).
-5.  원격 저장소에 푸시합니다 (`git push origin feature/your-feature-name`).
-6.  Pull Request를 생성합니다.
-
-<br/>
-
-## 📜 라이선스
-
-이 프로젝트는 MIT 라이선스를 따릅니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
-
----
