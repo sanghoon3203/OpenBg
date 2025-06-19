@@ -38,11 +38,11 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
     * **획득 뱃지 현황:** 사용자가 획득한 뱃지 목록을 보여줍니다.
 
 <div align="center">
-    <img src="openbg/public/images/wallet_image.png" alt="[메인페이지]" width="700"/>
+    <img src="openbg/public/images/wallet_image" alt="[메인페이지]" width="700"/>
     <br/>
     <p><em>[개인별 지갑 모습]</em></p>
     <br/>
-    <img src="openbg/public/images/Profile_image.png" alt="[개인별 프로필창]" width="700"/>
+    <img src="openbg/public/images/Profile_image" alt="[개인별 프로필창]" width="700"/>
     <br/>
     <p><em>[개인별 프로필창 모습]</em></p>
 </div>
@@ -53,7 +53,7 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
 * **추천 뱃지 표시:** 사용자에게 추천되는 뱃지 목록을 보여주며, 각 뱃지의 유사도 점수, 발행 기관, 설명 등의 상세 정보를 확인할 수 있습니다.
 
 <div align="center">
-    <img src="openbg/public/images/Recommendation_image.png" alt="[추천기능]" width="700"/>
+    <img src="openbg/public/images/Recommendation_image" alt="[추천기능]" width="700"/>
     <br/>
     <p><em>[해당 아이디 내에 저장되어있는 뱃지 내용을 바탕으로 RAG기반으로 작성된 AI모델과 API통신을 통해서 추천 리스트를 보여줍니다.]</em></p>
 </div>
@@ -66,7 +66,7 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
 * **보유 뱃지 태그:** 게시글 작성 시 사용자의 보유 뱃지를 자동으로 태그하여 다른 사용자들에게 자신의 역량을 효과적으로 어필할 수 있습니다.
 * **구인구직 연계:** 사용자가 자신의 역량을 효과적으로 어필하고, 실질적인 경력 개발로 이어질 수 있도록 구인구직 게시판과의 연계를 지원합니다.
 <div align="center">
-    <img src="openbg/public/images/Mainpage_image.png" alt="[커뮤니티 기능]" width="700"/>
+    <img src="openbg/public/images/Mainpage_image" alt="[커뮤니티 기능]" width="700"/>
     <br/>
     <p><em>[해당 아이디 내에 저장되어있는 뱃지 내용을 바탕으로 RAG기반으로 작성된 AI모델과 API통신을 통해서 추천 리스트를 보여줍니다.]</em></p>
 </div>
@@ -76,7 +76,7 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
 * **로그인/로그아웃:** Firebase Auth를 통해 안전한 로그인 및 로그아웃 기능을 제공합니다.
 * **사용자 UID 기반 데이터 관리:** 로그인한 사용자(UID)를 기반으로 개인 프로필, 뱃지 지갑, 커뮤니티 활동 등 모든 데이터를 Firestore에 저장하고 관리합니다.
 <div align="center">
-    <img src="openbg/public/images/mainpage_images.png" alt="[메인페이지]" width="700"/>
+    <img src="openbg/public/images/mainpage_images" alt="[메인페이지]" width="700"/>
     <br/>
     <p><em>[해당 아이디 내에 저장되어있는 뱃지 내용을 바탕으로 RAG기반으로 작성된 AI모델과 API통신을 통해서 추천 리스트를 보여줍니다.]</em></p>
 </div>
