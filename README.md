@@ -122,16 +122,16 @@ OpenBg는 **학습 경험과 역량 증명의 디지털 표준인 오픈배지�
 
 🎯 기술적 이슈 & 해결 과정
 
-4. 회원가입 시 사용자 데이터 형식 변환 및 통합
-문제 상황: 기존 시스템에서 관리되던 사용자 데이터 형식과 RAG 기반 AI 추천 시스템이 요구하는 사용자 데이터 형식이 달랐습니다. 특히, 회원가입 시 입력받는 사용자 프로필 정보(직업, 소속, 학습 목표, 스킬, 관심사 등)를 Firebase Firestore에 저장하면서, 향후 AI 추천 시스템이 쉽게 활용할 수 있도록 특정 구조와 필드명을 준수해야 했습니다. 또한, 사용자 경험을 위해 복잡한 회원가입 과정을 여러 단계로 나누어 진행할 필요가 있었습니다.
-고민:
-회원가입 폼에서 입력받는 다양한 프로필 데이터를 AI 시스템이 소비하기 적합한 단일하고 일관된 Firestore 문서 구조로 어떻게 매핑할 것인가?
-특히 스킬(skills)이나 관심 분야(interests)와 같은 다중 선택 필드를 Firestore에 어떤 형식(예: 배열)으로 저장할 것인가?
-Firebase Authentication으로 생성된 사용자 정보(UID, 이메일)와 Firestore에 저장될 추가 프로필 데이터를 어떻게 연결하고 관리할 것인가?
-다단계 폼에서 사용자 입력 데이터를 효율적으로 관리하고, 이전/다음 단계 이동 시 데이터 유실을 방지하려면 어떻게 해야 하는가?
-해결 방안: src/components/RegisterPage.jsx 파일에서 사용자 등록 및 데이터 통합 로직을 구현했습니다.
-통합된 form 상태 객체: 회원가입 폼의 모든 입력 필드(기본 계정 정보, 프로필 정보, 스킬 및 관심사)를 단일 form 상태 객체로 통합하여 관리했습니다. 이를 통해 다단계 폼에서 단계 간 이동 시에도 데이터 유실 없이 사용자 입력 정보를 효율적으로 유지했습니다.
-Firestore 데이터 구조 최적화: handleRegister 함수 내에서 Firebase Authentication으로 생성된 user.uid를 Firestore 문서 ID로 사용하고, userDataToStore 객체를 구성하여 AI 추천 시스템이 요구하는 필드명(user_id, name, email, job, affiliation, goal, education_level, interests, skills, competency_level, acquired_badges, learning_history, employment_history, engagement_metrics, recommendation_history)으로 데이터를 저장했습니다. 특히 interests와 skills는 배열 형태로 저장하여 다중 선택이 가능하도록 했습니다.
-고유 사용자 코드 생성 (generateUniqueUserCode 함수): Firestore users 컬렉션에서 가장 최근에 생성된 user_id를 기반으로 U와 순차 번호를 조합한 고유한 사용자 코드를 생성하여 user_id 필드에 저장했습니다. 이는 RAG 기반 AI가 사용자를 식별하고 컨텍스트를 이해하는 데 활용될 수 있습니다.
-다단계 폼 UI/UX: currentStep 상태와 renderStep 함수들을 사용하여 직관적인 다단계 회원가입 플로우를 제공하고, framer-motion을 활용하여 단계 전환 시 부드러운 애니메이션 효과를 적용하여 사용자 경험을 향상시켰습니다.
-배운 점: 서비스 초기 단계부터 백엔드(AI 추천 시스템)의 데이터 요구사항을 프론트엔드의 데이터 수집 과정에 반영하여 데이터 일관성과 활용성을 높이는 것이 중요함을 깨달았습니다. 복잡한 사용자 입력 폼을 체계적으로 관리하고, 고유 ID 생성과 같은 데이터베이스 연동 로직을 프론트엔드에서 구현하는 경험을 통해 프론트엔드 개발의 범위를 확장할 수 있었습니다.
+### 4. 회원가입 시 사용자 데이터 형식 변환 및 통합
+* **문제 상황:** 기존 시스템에서 관리되던 사용자 데이터 형식과 RAG 기반 AI 추천 시스템이 요구하는 사용자 데이터 형식이 달랐습니다. 특히, 회원가입 시 입력받는 사용자 프로필 정보(직업, 소속, 학습 목표, 스킬, 관심사 등)를 Firebase Firestore에 저장하면서, 향후 AI 추천 시스템이 쉽게 활용할 수 있도록 특정 구조와 필드명을 준수해야 했습니다. 또한, 사용자 경험을 위해 복잡한 회원가입 과정을 여러 단계로 나누어 진행할 필요가 있었습니다.
+* **고민:**
+    * 회원가입 폼에서 입력받는 다양한 프로필 데이터를 AI 시스템이 소비하기 적합한 단일하고 일관된 Firestore 문서 구조로 어떻게 매핑할 것인가?
+    * 특히 스킬(`skills`)이나 관심 분야(`interests`)와 같은 다중 선택 필드를 Firestore에 어떤 형식(예: 배열)으로 저장할 것인가?
+    * Firebase Authentication으로 생성된 사용자 정보(UID, 이메일)와 Firestore에 저장될 추가 프로필 데이터를 어떻게 연결하고 관리할 것인가?
+    * 다단계 폼에서 사용자 입력 데이터를 효율적으로 관리하고, 이전/다음 단계 이동 시 데이터 유실을 방지하려면 어떻게 해야 하는가?
+* **해결 방안:** `src/components/RegisterPage.jsx` 파일에서 사용자 등록 및 데이터 통합 로직을 구현했습니다.
+    * **통합된 `form` 상태 객체:** 회원가입 폼의 모든 입력 필드(기본 계정 정보, 프로필 정보, 스킬 및 관심사)를 단일 `form` 상태 객체로 통합하여 관리했습니다. 이를 통해 다단계 폼에서 단계 간 이동 시에도 데이터 유실 없이 사용자 입력 정보를 효율적으로 유지했습니다.
+    * **Firestore 데이터 구조 최적화:** `handleRegister` 함수 내에서 Firebase Authentication으로 생성된 `user.uid`를 Firestore 문서 ID로 사용하고, `userDataToStore` 객체를 구성하여 AI 추천 시스템이 요구하는 필드명(`user_id`, `name`, `email`, ``job`, `affiliation`, `goal`, `education_level`, `interests`, `skills`, `competency_level`, `acquired_badges`, `learning_history`, `employment_history`, `engagement_metrics`, `recommendation_history`)으로 데이터를 저장했습니다. 특히 `interests`와 `skills`는 배열 형태로 저장하여 다중 선택이 가능하도록 했습니다.
+    * **고유 사용자 코드 생성 (`generateUniqueUserCode` 함수):** Firestore `users` 컬렉션에서 가장 최근에 생성된 `user_id`를 기반으로 `U`와 순차 번호를 조합한 고유한 사용자 코드를 생성하여 `user_id` 필드에 저장했습니다. 이는 RAG 기반 AI가 사용자를 식별하고 컨텍스트를 이해하는 데 활용될 수 있습니다.
+    * **다단계 폼 UI/UX:** `currentStep` 상태와 `renderStep` 함수들을 사용하여 직관적인 다단계 회원가입 플로우를 제공하고, `framer-motion`을 활용하여 단계 전환 시 부드러운 애니메이션 효과를 적용하여 사용자 경험을 향상시켰습니다.
+* **배운 점:** 서비스 초기 단계부터 백엔드(AI 추천 시스템)의 데이터 요구사항을 프론트엔드의 데이터 수집 과정에 반영하여 데이터 일관성과 활용성을 높이는 것이 중요함을 깨달았습니다. 복잡한 사용자 입력 폼을 체계적으로 관리하고, 고유 ID 생성과 같은 데이터베이스 연동 로직을 프론트엔드에서 구현하는 경험을 통해 프론트엔드 개발의 범위를 확장할 수 있었습니다.
